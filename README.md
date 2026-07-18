@@ -420,17 +420,8 @@ CalmPulse utilizes two custom-trained **Random Forest Classifiers** optimized fo
 
 ---
 
-## 13. Screenshots
 
-*Place your application screenshots here once deployed:*
-
-| Dashboard Overview | Pulse Bot Assistant Chat |
-| :--- | :--- |
-| ![Dashboard Placeholder](https://via.placeholder.com/600x400.png?text=CalmPulse+Dashboard+Screenshot) | ![Chatbot Placeholder](https://via.placeholder.com/600x400.png?text=Pulse+Bot+Chatbot+Screenshot) |
-
----
-
-## 14. Future Enhancements
+## 13. Future Enhancements
 
 *   **OAuth2 Integration**: Login with Google, GitHub, or school credentials.
 *   **Real-time Visualization**: Interactive chart graphs (Chart.js or D3.js) to view stress fluctuations over weeks/months on the dashboard.
@@ -440,12 +431,3 @@ CalmPulse utilizes two custom-trained **Random Forest Classifiers** optimized fo
 
 ---
 
-## 15. Contributors
-
-*   **Ajit Birajdar** - *Lead Developer / ML & Backend Engineer* - [GitHub Profile](https://github.com/ajitbirajdar1108)
-
----
-
-## 16. License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
