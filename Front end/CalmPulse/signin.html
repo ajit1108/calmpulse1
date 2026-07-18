@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In</title>
+    <link rel="stylesheet" type="text/css" href="login.css">
+</head>
+<body>
+    <div class="squares">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+    <div class="nav">
+            <img src="images/logo.png">
+            <div class="nav-right">
+                <a href="index.html">Home</a>
+                <a href="Aboutus.html">About Us</a>
+                <a href="working.html">How it Works</a>
+                <a href="faq.html">FAQ</a>
+                <a href="signup.html">Sign Up</a>
+                <a class="active" href="signin.html">Sign In</a>
+            </div>
+        </div> 
+    <div class="a">
+        <div class="b">
+            <h1>Sign In</h1>
+            <div class="form-box">
+                <form id="signinForm">
+            <input type="email" placeholder="Email" id="email" class="inp" required>
+            <p id="emailError" class="error-text"></p>
+            <input type="password" placeholder="Password" id="password" class="inp" required 
+            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+            title="At least 8 chars, include uppercase, lowercase, number & special char">
+            <p id="passwordError" class="error-text"></p>
+            <input type="text" placeholder="User Name" id="username" class="inp" required>
+            <p id="usernameError" class="error-text"></p>
+            <br>
+            <input type="submit" value="Sign In" name="submit-btn" class="submit-btn">
+            </form>
+
+            <p class="register-text">
+                New user? <a href="signup.html">Register</a>
+            </p>        
+        </div>
+        </div>
+    </div>
+ <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>CalmPulse</h3>
+                <p>Find Your Calm,Meet Your Pulse.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="Aboutus.html">About Us</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="working.html">How it works</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <p>Email: info@CalmPulse.com</p>
+                <p>Phone: +91 12345 67890</p>
+            </div>
+            <div class="footer-section social">
+                <h4>Follow Us</h4>
+                <a href="#"><img src="images/facebook.png" alt="Facebook" /></a>
+                <a href="#"><img src="images/instagram.png" alt="Instagram" /></a>
+                <a href="#"><img src="images/twitter.png" alt="Twitter" /></a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 CalmPulse. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="api-config.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const BASE_URL = window.getApiBaseUrl();
+
+    const form = document.getElementById('signinForm');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const usernameInput = document.getElementById('username');
+
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const usernameError = document.getElementById('usernameError');
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        // Clear previous errors
+        emailError.textContent = '';
+        passwordError.textContent = '';
+        usernameError.textContent = '';
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+        const username = usernameInput.value.trim();
+
+        let isValid = true;
+        if (!validateEmail(email)) {
+            emailError.textContent = 'Please enter a valid email address.';
+            isValid = false;
+        }
+        if (!validatePassword(password)) {
+            passwordError.textContent = 'Password must be at least 8 chars, include uppercase, lowercase, number & special char.';
+            isValid = false;
+        }
+        if (username === '') {
+            usernameError.textContent = 'Username is required.';
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+        // **Correct login data to be sent to the backend**
+        // The backend only requires email and password for login
+        const loginData = { email, password };
+
+        try {
+            const res = await fetch(`${BASE_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(loginData)
+            });
+
+            const data = await res.json().catch(() => ({}));
+            
+            if (!res.ok) {
+                // If login fails, check for specific backend error messages
+                if (data.error === "Invalid email or password.") {
+                    emailError.textContent = data.error;
+                    passwordError.textContent = '';
+                    return;
+                }
+                throw new Error(data.error || 'Login failed.');
+            }
+
+            // Save user info for other pages
+            if (data.user_id !== undefined && data.user_id !== null) {
+                localStorage.setItem('user_id', String(data.user_id));
+            }
+            // Store username locally for frontend display
+            localStorage.setItem('username', username);
+
+            if (data.role) localStorage.setItem('role', data.role);
+            if (data.is_new_user !== undefined) localStorage.setItem('is_new_user', String(data.is_new_user));
+
+            alert('Signed in successfully!');
+            // Redirect to the appropriate page based on backend response
+            if (data.is_new_user) {
+                window.location.href = 'profile.html';
+            } else {
+                window.location.href = 'dashboard.html';
+            }
+        } catch (err) {
+            console.error('Sign-in error:', err);
+            alert('Sign-in failed: ' + err.message);
+        }
+    });
+
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
+    function validatePassword(password) {
+        const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/;
+        return pattern.test(password);
+    }
+});
+</script>
+</body>
+</html>

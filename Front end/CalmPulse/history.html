@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History</title>
+    <link rel="stylesheet" type="text/css" href="post-login.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+      <div class="nav">
+            <img src="images/logo.png">
+            <div class="nav-right">
+                <div class="nav-content">
+        
+                <button id="signout-btn">Sign Out</button></div>
+            </div>
+            </div> 
+    </div>
+   <div class="sidebar">
+        
+        <a  href="dashboard.html"><i class="fa-solid fa-house"></i><br><p>Dashboard</p></a>
+        
+        <a href="profile.html"><i class="fa-solid fa-user"></i><p>Profile</p></a>
+       
+        <a class="active" href="history.html"><i class="fa-solid fa-chart-line"></i> <p>History</p></a>
+        
+        <a href="Info.html"><i class="fa-solid fa-circle-info"></i><p>Information Forum</p></a>
+         <a href="chat.html"><i class=" fa-solid fa-comment"></i><P>Pulse Bot</P></a>
+        
+    </div>
+  <div class="content2">
+    <div class="chart-card">
+      <h2>Monthly Stress Level Analysis</h2>
+      <canvas id="lineChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <h2>Factor Contribution to Stress</h2>
+      <canvas id="pieChart"></canvas>
+    </div>
+  </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="api-config.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const BASE_URL = window.getApiBaseUrl();
+  const userId = localStorage.getItem('user_id');
+const mode = localStorage.getItem('mode'); // "student" or "employee"
+
+if (!userId || !mode) {
+    // User not signed in, do nothing (no alert)
+    console.warn('User not signed in or profile incomplete');
+}
+
+// FETCH HISTORY DATA
+fetch(`${BASE_URL}/history/${userId}`)
+    .then(async res => {
+        const data = await res.json().catch(() => null);
+        if (!res.ok) throw new Error((data && data.error) || 'Failed to load history');
+
+        if (!Array.isArray(data) || data.length === 0) {
+            // Instead of alert, show a message on page
+            const container = document.querySelector('.content2');
+            container.innerHTML = '<p style="padding:20px; font-size:18px;">No history records yet. Complete a stress test first!</p>';
+            return;
+        }
+
+        // existing logic to populate charts...
+    })
+   
+
+  // LINE CHART setup
+  const ctxLine = document.getElementById('lineChart').getContext('2d');
+  const lineChart = new Chart(ctxLine, {
+    type: 'line',
+    data: { labels: [], datasets: [{ label: 'Stress Score', data: [], borderColor: 'rgb(75,192,192)', tension: 0.3, fill: false }] },
+    options: { responsive: true, scales: { y: { beginAtZero: true, max: 10 } } }
+  });
+
+  // PIE CHART setup
+  const ctxPie = document.getElementById('pieChart').getContext('2d');
+  const pieChart = new Chart(ctxPie, {
+    type: 'pie',
+    data: { labels: [], datasets: [{ data: [], backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#E7E9ED','#FF9F40','#5BC0DE','#A3E635','#F87171'] }] },
+    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+  });
+
+  // FETCH HISTORY DATA
+  fetch(`${BASE_URL}/history/${userId}`)
+    .then(async res => {
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error((data && data.error) || 'Failed to load history');
+      if (!Array.isArray(data) || data.length === 0) {
+        alert('No history records yet. Complete a stress test first!');
+        return;
+      }
+
+      // LINE CHART: stress scores over time
+      const labels = data.map(r => {
+        const d = new Date(r.timestamp);
+        return isNaN(d.getTime()) ? "Unknown" : d.toLocaleString();
+      });
+      const scores = data.map(r => {
+        const s = Number(r.stress_score);
+        return isNaN(s) ? 0 : s;
+      });
+
+      lineChart.data.labels = labels;
+      lineChart.data.datasets[0].data = scores;
+      lineChart.update();
+
+      // PIE CHART: mode-based factor visualization
+      const latest = data[data.length - 1];
+      const factors = latest.factors || {};
+      updatePieChart(factors, mode);
+    })
+    .catch(err => {
+        console.error('History fetch error:', err);
+        const container = document.querySelector('.content2');
+        container.innerHTML = '<p style="padding:20px; font-size:18px; color:red;">Could not load history.</p>';
+    });
+
+  // MODE-BASED PIE CHART LOGIC
+  function updatePieChart(factors, mode) {
+    let factorLabels = [];
+    let factorValues = [];
+
+    if (mode === 'student') {
+      factorLabels = [
+        'Anxiety Level','Depression Level','Sleep Quality','Academic Performance','Study Load',
+        'Teacher Relationship','Career Concerns','Social Support','Peer Pressure','Extracurricular Load'
+      ];
+      factorValues = [
+        factors.anxiety_level || 0,
+        factors.depression || 0,
+        factors.sleep_quality || 0,
+        factors.academic_performance || 0,
+        factors.study_load || 0,
+        factors.teacher_student_relationship || 0,
+        factors.future_career_concerns || 0,
+        factors.social_support || 0,
+        factors.peer_pressure || 0,
+        factors.extracurricular_load || 0
+      ];
+    } else if (mode === 'employee') {
+      factorLabels = [
+        'Work Hours','Virtual Meetings','Work-Life Balance','Company Support','Access to Resources',
+        'Sleep Quality','Physical Activity','Satisfaction (Remote Work)'
+      ];
+      factorValues = [
+        factors.work_hours || 0,
+        factors.virtual_meetings || 0,
+        factors.work_life_balance || 0,
+        factors.company_support || 0,
+        factors.access_to_mental_health === 'yes' ? 1 : 0,
+        factors.sleep_quality || 0,
+        factors.physical_activity === 'daily' ? 3 : factors.physical_activity === 'weekly' ? 2 : 1,
+        factors.satisfaction_with_remote_work === 'satisfied' ? 3 : 1
+      ];
+    }
+
+    // Remove zero-only factors
+    const filteredLabels = [];
+    const filteredValues = [];
+    factorLabels.forEach((label, i) => {
+      if (factorValues[i] > 0) {
+        filteredLabels.push(label);
+        filteredValues.push(factorValues[i]);
+      }
+    });
+
+    pieChart.data.labels = filteredLabels;
+    pieChart.data.datasets[0].data = filteredValues;
+    pieChart.update();
+  }
+
+  // SIGN OUT
+  document.getElementById('signout-btn').addEventListener('click', () => {
+    localStorage.removeItem('username');
+    localStorage.removeItem('mode');
+    localStorage.removeItem('profileData');
+    localStorage.removeItem('user_id');
+    window.location.href = 'signin.html';
+  });
+});
+</script>
+
+
+</body>
+</html>

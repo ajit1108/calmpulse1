@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="post-login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Profile</title>
+</head>
+<body>
+    <div class="nav">
+        <img src="images/logo.png">
+        <div class="nav-right">
+            <div class="nav-content">
+                <button id="signout-btn">Sign Out</button>
+            </div>
+        </div>
+    </div>
+
+   <div class="sidebar">
+        <a href="dashboard.html"><i class="fa-solid fa-house"></i><br><p>Dashboard</p></a>
+        <a class="active" href="profile.html"><i class="fa-solid fa-user"></i><p>Profile</p></a>
+        <a href="history.html"><i class="fa-solid fa-chart-line"></i> <p>History</p></a>
+        <a href="Info.html"><i class="fa-solid fa-circle-info"></i><p>Information Forum</p></a>
+        <a href="chat.html"><i class="fa-solid fa-comment"></i><p>Pulse Bot</p></a>
+    </div>
+
+    <div class="content">
+        <div class="profile">
+            <h1>Your Profile</h1>
+            <form id="profile-form">
+                <label for="fname">First Name</label>
+                <input type="text" id="fname" name="fname" placeholder="Enter your first name" required>
+
+                <label for="lname">Last Name</label>
+                <input type="text" id="lname" name="lname" placeholder="Enter your last name" required>
+
+                <label for="contact">Contact</label>
+                <input type="tel" id="contact" name="contact" placeholder="Enter mobile number" required>
+
+                <label for="age">Age</label>
+                <input type="number" id="age" name="age" placeholder="Enter your age" required>
+
+                <label for="gender">Gender</label>
+                <select id="gender" name="gender" required>
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <label for="mode">Mode</label>
+                <div class="radio-Group">
+                    <label><input type="radio" name="mode" value="student" required>Student</label>
+                    <label><input type="radio" name="mode" value="employee" required>Employee</label>
+                </div>
+
+                <div class="buttons">
+                    <button class="save-btn" type="submit">Save</button>
+                    <button class="edit-btn">Edit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+<script src="api-config.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const BASE_URL = window.getApiBaseUrl();
+
+    const fnameInput = document.getElementById("fname");
+    const lnameInput = document.getElementById("lname");
+    const contactInput = document.getElementById("contact");
+    const ageInput = document.getElementById("age");
+    const genderSelect = document.getElementById("gender");
+    const modeRadios = document.getElementsByName("mode");
+    const saveBtn = document.querySelector(".save-btn");
+    const editBtn = document.querySelector(".edit-btn");
+    const signoutBtn = document.getElementById("signout-btn");
+
+    const currentUserId = localStorage.getItem("user_id");
+    if (!currentUserId) {
+        alert("User not signed in. Redirecting to login...");
+        window.location.href = "signin.html";
+        return;
+    }
+
+    const profileKey = `profileData_${currentUserId}`;
+    const savedProfile = JSON.parse(localStorage.getItem(profileKey));
+
+    // Load existing profile
+    if (savedProfile) {
+        fillProfile(savedProfile);
+        disableInputs();
+    } else {
+        enableInputs();
+    }
+
+    // Save profile
+    saveBtn.addEventListener("click", async function (e) {
+        e.preventDefault();
+
+        let selectedMode = "";
+        for (let radio of modeRadios) {
+            if (radio.checked) selectedMode = radio.value;
+        }
+
+        if (!fnameInput.value.trim() || !lnameInput.value.trim()) {
+            alert("First and last name are required.");
+            return;
+        }
+        if (!/^[0-9]{10}$/.test(contactInput.value.trim())) {
+            alert("Enter a valid 10-digit contact number.");
+            return;
+        }
+        const ageVal = parseInt(ageInput.value);
+        if (isNaN(ageVal) || ageVal < 10) {
+            alert("Age must be 10 or older.");
+            return;
+        }
+        if (!genderSelect.value) {
+            alert("Please select a gender.");
+            return;
+        }
+        if (!selectedMode) {
+            alert("Select mode (Student / Employee).");
+            return;
+        }
+
+        const payload = {
+            user_id: currentUserId,
+            first_name: fnameInput.value.trim(),
+            last_name: lnameInput.value.trim(),
+            contact: contactInput.value.trim(),
+            age: ageVal,
+            gender: genderSelect.value,
+            mode: selectedMode
+        };
+
+        try {
+            const res = await fetch(`${BASE_URL}/profile`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || "Failed to save profile on server.");
+
+            const localProfile = {
+                fname: payload.first_name,
+                lname: payload.last_name,
+                contact: payload.contact,
+                age: payload.age,
+                gender: payload.gender,
+                mode: payload.mode
+            };
+
+            localStorage.setItem(profileKey, JSON.stringify(localProfile));
+            localStorage.setItem("mode", payload.mode);
+            localStorage.setItem("first_name", payload.first_name);
+
+            fillProfile(localProfile);
+            disableInputs();
+            alert("Profile saved successfully!");
+        } catch (err) {
+            console.error("Profile save error:", err);
+            alert("Error saving profile: " + err.message);
+        }
+    });
+
+    // Edit profile
+    editBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        enableInputs();
+    });
+
+    // Logout
+    signoutBtn.addEventListener("click", function () {
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("is_new_user");
+        window.location.href = "signin.html";
+    });
+
+    // Fill profile fields
+    function fillProfile(profile) {
+        fnameInput.value = profile.fname || "";
+        lnameInput.value = profile.lname || "";
+        contactInput.value = profile.contact || "";
+        ageInput.value = profile.age || "";
+        genderSelect.value = profile.gender || "";
+
+        for (let r of modeRadios) {
+            r.checked = (r.value === profile.mode);
+        }
+    }
+
+    // Disable inputs after saving
+    function disableInputs() {
+        fnameInput.disabled = true;
+        lnameInput.disabled = true;
+        contactInput.disabled = true;
+        ageInput.disabled = true;
+        genderSelect.disabled = true;
+        saveBtn.disabled = true;
+
+        for (let r of modeRadios) {
+            r.disabled = true;
+        }
+    }
+
+    // Enable inputs when editing
+    function enableInputs() {
+        fnameInput.disabled = false;
+        lnameInput.disabled = false;
+        contactInput.disabled = false;
+        ageInput.disabled = false;
+        genderSelect.disabled = false;
+        saveBtn.disabled = false;
+
+        for (let r of modeRadios) {
+            r.disabled = false;
+        }
+    }
+});
+</script>
+</body>
+</html>

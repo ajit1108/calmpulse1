@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" type="text/css" href="login.css">
+</head>
+<body>
+    <div class="squares">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+    <div class="nav">
+            <img src="images/logo.png">
+            <div class="nav-right">
+                <a href="index.html">Home</a>
+                <a href="Aboutus.html">About Us</a>
+                <a href="working.html">How it Works</a>
+                <a href="faq.html">FAQ</a>
+                <a class="active" href="signup.html">Sign Up</a>
+                <a href="signin.html">Sign In</a>
+            </div>
+        </div>
+    <div class="a">
+        <div class="c">
+        <h1>Sign Up</h1>
+        <div class="form-box">
+            <form id="signupForm">
+            <input type="text" placeholder="First Name" id="firstname" class="inp" required>
+            <p id="firstnameError" class="error-text"></p>
+            <input type="text" placeholder="Last Name" id="lastname" class="inp" required>
+            <p id="lastnameError" class="error-text"></p>
+            <input type="tel" placeholder="Contact" id="mobile" class="inp" required>
+            <p id="mobileError" class="error-text"></p>
+            <input type="email" placeholder="Email"  id="email" class="inp" required>
+            <p id="emailError" class="error-text"></p>
+            <input type="password" placeholder="Password" id="password" class="inp" required>
+            <p id="passwordError" class="error-text"></p>
+            <input type="text" placeholder="User Name" id="username" class="inp" required>
+            <p id="usernameError" class="error-text"></p><br>
+            <input type="submit" value="Sign Up" name="submit-btn" class="submit-btn">
+            </form>
+        </div></div>
+    </div>
+   <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>CalmPulse</h3>
+                <p>Find Your Calm,Meet Your Pulse.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="Aboutus.html">About Us</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="working.html">How it <wbr></wbr>works</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <p>Email: info@CalmPulse.com</p>
+                <p>Phone: +91 12345 67890</p>
+            </div>
+            <div class="footer-section social">
+                <h4>Follow Us</h4>
+                <a href="#"><img src="images/facebook.png" alt="Facebook" /></a>
+                <a href="#"><img src="images/instagram.png" alt="Instagram" /></a>
+                <a href="#"><img src="images/twitter.png" alt="Twitter" /></a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 CalmPulse. All rights reserved.</p>
+        </div>
+    </footer>
+   <script src="api-config.js"></script>
+   <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const signupForm = document.getElementById('signupForm');
+    const firstnameInput = document.getElementById('firstname');
+    const lastnameInput = document.getElementById('lastname');
+    const mobileInput = document.getElementById('mobile');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const usernameInput = document.getElementById('username');
+
+    const firstnameError = document.getElementById('firstnameError');
+    const lastnameError = document.getElementById('lastnameError');
+    const mobileError = document.getElementById('mobileError');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const usernameError = document.getElementById('usernameError');
+
+    const BASE_URL = window.getApiBaseUrl();
+
+    signupForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Clear previous errors
+        firstnameError.textContent = '';
+        lastnameError.textContent = '';
+        mobileError.textContent = '';
+        emailError.textContent = '';
+        passwordError.textContent = '';
+        usernameError.textContent = '';
+
+        let isValid = true;
+
+        // Validation
+        if (firstnameInput.value.trim() === '') {
+            firstnameError.textContent = 'First name is required.';
+            isValid = false;
+        }
+        if (lastnameInput.value.trim() === '') {
+            lastnameError.textContent = 'Last name is required.';
+            isValid = false;
+        }
+        const mobilePattern = /^[0-9]{10}$/;
+        if (!mobilePattern.test(mobileInput.value.trim())) {
+            mobileError.textContent = 'Enter a valid 10-digit mobile number.';
+            isValid = false;
+        }
+        if (!validateEmail(emailInput.value.trim())) {
+            emailError.textContent = 'Enter a valid email address.';
+            isValid = false;
+        }
+        if (!validatePassword(passwordInput.value.trim())) {
+            passwordError.textContent = 'Password must be at least 8 chars, include uppercase, lowercase, number & special char.';
+            isValid = false;
+        }
+        if (usernameInput.value.trim() === '') {
+            usernameError.textContent = 'User name is required.';
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+        // Prepare data for backend
+        const userData = {
+            first_name: firstnameInput.value.trim(),
+            last_name: lastnameInput.value.trim(),
+            contact: mobileInput.value.trim(),
+            email: emailInput.value.trim(),
+            password: passwordInput.value.trim(),
+            username: usernameInput.value.trim(),
+            role: 'student' // Optional: or let user select later in profile page
+        };
+
+        try {
+            const response = await fetch(`${BASE_URL}/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
+
+            const rawText = await response.text();
+            let data = null;
+
+            try {
+                data = rawText ? JSON.parse(rawText) : null;
+            } catch (parseError) {
+                data = null;
+            }
+
+            if (!response.ok) {
+                if (data && data.error) {
+                    throw new Error(data.error);
+                }
+
+                if (rawText.trim().startsWith('<!doctype') || rawText.trim().startsWith('<html')) {
+                    throw new Error('The production signup API returned an HTML server error instead of JSON. The backend /signup route is failing on the server.');
+                }
+
+                throw new Error(rawText || 'Signup failed.');
+            }
+
+            alert((data && data.message) || 'Registration successful!');
+            signupForm.reset();
+            window.location.href = 'signin.html';
+        } catch (error) {
+            console.error('Signup error:', error);
+            alert('Error: ' + error.message);
+        }
+    });
+
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
+    function validatePassword(password) {
+        const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/;
+        return pattern.test(password);
+    }
+});
+</script>
+</body>
+</html>

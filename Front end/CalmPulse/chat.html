@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Assistant</title>
+    <link rel="stylesheet" type="text/css" href="post-login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="api-config.js"></script>
+    <script src="chatbot.js"></script> 
+</head>
+<body>
+<div id="main-content">
+    <div class="nav">
+        <img src="images/logo.png">
+        <div class="nav-right">
+            <div class="nav-content">
+                <h5> Welcome, <span id="username"></span>!</h5>
+                <button id="signout-btn">Sign Out</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="sidebar">
+         <a href="dashboard.html"><i class="fa-solid fa-house"></i><br><p>Dashboard</p></a>
+        
+        <a href="profile.html"><i class="fa-solid fa-user"></i><p>Profile</p></a>
+       
+        <a href="history.html"><i class="fa-solid fa-chart-line"></i> <p>History</p></a>
+        
+        <a  class="active" href="Info.html"><i class="fa-solid fa-circle-info"></i><p>Information Forum</p></a>
+        
+         <a href="chat.html"><i class=" fa-solid fa-comment"></i><P>Pulse Bot</P></a>
+    </div>
+
+    <div class="content4">
+        <h1>CalmPulse AI Assistant</h1>
+        <p>Ask our AI about stress, coping tips, and mental well-being strategies tailored to your role.</p>
+        
+        <div id="chat-page-container">
+            </div>
+
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const usernameDisplay = document.getElementById("username");
+    const signoutBtn = document.getElementById("signout-btn");
+    
+    const username = localStorage.getItem('username');
+    const userRole = localStorage.getItem('mode'); // Get the role to pass to the chatbot
+
+    if (username) usernameDisplay.textContent = username;
+    if (!username || !userRole) {
+        alert('Please sign in and complete your profile first.');
+        window.location.href = 'signin.html';
+        return;
+    }
+    
+    // --- Initialize the Chatbot UI in the Content Area ---
+    if (typeof initializePageChatbot === 'function') {
+        initializePageChatbot(userRole);
+    }
+
+    // --- Sign out ---
+    signoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('username');
+        localStorage.removeItem('user_id');
+        localStorage.removeItem('role');
+        window.location.href = 'signin.html';
+    });
+});
+</script>
+</body>
+</html>

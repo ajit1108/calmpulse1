@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+     <link rel="stylesheet" type="text/css" href="home.css">
+</head>
+<body>  
+<div id="preloader">
+  <span class="loader"></span>
+</div> 
+<div id="main-content" style="display:none;">
+        <div class="nav">
+            <img src="images/logo.png">
+            <div class="nav-right">
+                <a class="active" href="home.html">Home</a>
+                <a href="Aboutus.html">About Us</a>
+                <a href="working.html">How it Works</a>
+                <a href="faq.html">FAQ</a>
+                <a href="signup.html">Sign Up</a>
+                <a href="signin.html">Sign In</a>
+            </div>
+        </div>
+        <div class="main">
+            <div class="sections">
+                <div class="section-right">
+                    <div class="logo-container">
+                        <img src="images/logo.png">
+                         <h1>Breathe Easy</h1><br>
+                         <h2> Take the first step </h2>
+                         <a href="signup.html">Sign Up</a><br><br>
+                         
+                </div>
+                <div class="scroll-down">
+                  <span>&#8595;</span> 
+                </div>
+
+                <div class="section-left">
+                    <video autoplay loop muted playsinline>
+                        <source src="images/video5.mp4" type="video/mp4">
+                    </video>
+                    <h2> Your journey to a Stress Free Mind Begins Here! </h2>
+
+                </div>
+            </div>   
+
+            <section class="problem-solution">
+  
+    <div class="problem">
+    <img src="images/problem.jpg" alt="Problem Image">
+    <h2>You can't manage what you can't measure.<br> Here's a solution</h2>
+    </p>
+  </div>
+
+  
+  <div class="solution">
+    <div class="solution-text">
+      <p>We provide a simple, easy-to-use platform that helps users track, understand, 
+     and overcome stress through practical tips.CalmPulse is built to recognize the small signs of stress before they build up.
+    By detecting changes in your stress levels, it gently steps in with easy, practical tips to help you regain balance. 
+    Whether it's test-day nerves or everyday pressure, CalmPulse keeps you centered so you can give your best.
+    </div>
+    <div class="solution-image">
+      <img src="images/solution.jpg" alt="Solution Image">
+    </div>
+  </div>
+ </div>
+
+
+ <section class="features">
+  <h2>Key Features</h2>
+  <div class="features-container">
+    <div class="feature">
+      <img src="images/f1.jpg" alt="Feature 1">
+      <p>Stress Detection </p>
+    </div>
+    <div class="feature">
+      <img src="images/f2.jpg" alt="Feature 2">
+      <p> Smart Analysis</p>
+    </div>
+    <div class="feature">
+      <img src="images/f3.jpg" alt="Feature 3">
+      <p> Information Forum</p>
+    </div>
+    <div class="feature">
+      <img src="images/f4.jpg" alt="Feature 4">
+      <p>Helpful Tips</p>
+    </div>
+    <div class="feature">
+      <img src="images/f5.jpg" alt="Feature 5">
+      <p>User-friendly</p>
+    </div>
+    <div class="feature">
+      <img src="images/f6.jpg" alt="Feature 6">
+      <p>Feel Realxed</p>
+    </div>
+  </div>
+</section>
+<div class="know-more">
+  <a href="working.html">Click Here to Explore More!!</a>
+</div>
+</div>
+
+
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>CalmPulse</h3>
+                <p>Find Your Calm,Meet Your Pulse.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="Aboutus.html">About Us</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="working.html">How it <wbr></wbr>works</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <p>Email: info@CalmPulse.com</p>
+                <p>Phone: +91 12345 67890</p>
+            </div>
+            <div class="footer-section social">
+                <h4>Follow Us</h4>
+                <a href="#"><img src="images/facebook.png" alt="Facebook" /></a>
+                <a href="#"><img src="images/instagram.png" alt="Instagram" /></a>
+                <a href="#"><img src="images/twitter.png" alt="Twitter" /></a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 CalmPulse. All rights reserved.</p>
+        </div>
+    </footer>
+    </div>
+    <script>
+      window.addEventListener('load', function(){
+        const minTime=2000;
+        const preloader=document.getElementById('preloader');
+        const mainContent=document.getElementById('main-content');
+
+        setTimeout(() =>{
+          preloader.style.opacity='0';
+
+          setTimeout(() =>{
+            preloader.style.display='none';
+            mainContent.style.display='block';
+          },1000);
+        },minTime);
+      });
+    </script>
+
+    
+    
+</body>
+</html>

@@ -1,0 +1,26 @@
+.main-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; 
+}
+
+.form-sections {
+  display: flex;
+  gap: 40px; /* space between Profile & Input box */
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px); /* glass effect */
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.form-box {
+  flex: 1;
+  padding: 20px;
+  background: rgba(190, 237, 191, 0.25); 
+  border-radius: 10px;
+  text-align: left;
+  color: rgb(40, 77, 22);
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+}
