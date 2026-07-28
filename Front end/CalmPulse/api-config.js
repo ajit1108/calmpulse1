@@ -7,7 +7,7 @@
     // If accessed over the internet, point to your deployed Render backend service URL.
     // Replace 'calmpulse-backend.onrender.com' with your actual Render URL after deploying.
     if (hostname !== "localhost" && hostname !== "127.0.0.1" && hostname !== "") {
-        url = "https://calmpulse-backend.onrender.com";
+        url = "https://calmpulse.onrender.com";
     }
 
     window.CALMPULSE_CONFIG = Object.freeze({
