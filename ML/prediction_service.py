@@ -168,6 +168,26 @@ def preprocess_student_data_for_prediction(df):
     return df
 
 # -----------------------------
+# ROOT ENDPOINT
+# -----------------------------
+@app.route('/', methods=['GET'])
+def home():
+    return jsonify({
+        "status": "running",
+        "service": "CalmPulse ML Prediction API",
+        "message": "API is running successfully"
+    })
+
+# -----------------------------
+# HEALTH CHECK ENDPOINT
+# -----------------------------
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({
+        "status": "healthy"
+    })
+
+# -----------------------------
 # PREDICT API ENDPOINT
 # -----------------------------
 @app.route('/predict_ml', methods=['POST'])
@@ -213,5 +233,5 @@ def predict_ml():
 
 
 if __name__ == '__main__':
-    # Listen on localhost port 5001
-    app.run(host='0.0.0.0', port=5001)
+    port = int(os.environ.get("PORT", 5001))
+    app.run(host='0.0.0.0', port=port)
