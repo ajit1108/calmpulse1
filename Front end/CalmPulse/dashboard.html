@@ -383,6 +383,25 @@ document.addEventListener("DOMContentLoaded", function () {
         const badgeEl = document.getElementById("user-badge");
         const msgEl = document.getElementById("streak-msg");
 
+        // Use cached stats if synced in this session
+        if (sessionStorage.getItem("stats_synced") === "true") {
+            const streakVal = localStorage.getItem("streak") || 0;
+            const badgeVal = localStorage.getItem("badge") || "None";
+            
+            if (countEl) countEl.textContent = streakVal;
+            if (badgeEl) badgeEl.textContent = badgeVal;
+            if (msgEl) {
+                let s = parseInt(streakVal);
+                if (s === 0)
+                    msgEl.textContent = "Complete today's test to start a streak.";
+                else if (s === 1)
+                    msgEl.textContent = "Nice — you completed today's test!";
+                else
+                    msgEl.textContent = `Great! You are on a ${s}-day streak.`;
+            }
+            return;
+        }
+
         if (countEl && badgeEl) {
             countEl.innerHTML = '<span class="skeleton-box" style="display:inline-block; width:40px; height:30px;"></span>';
             badgeEl.innerHTML = '<span class="skeleton-box" style="display:inline-block; width:80px; height:15px;"></span>';
@@ -393,10 +412,16 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!res.ok) throw new Error("Could not contact stats service.");
 
             const data = await res.json();
-            if (countEl) countEl.textContent = data.streak || 0;
-            if (badgeEl) badgeEl.textContent = data.badge || "None";
+            const s = data.streak || 0;
+            const b = data.badge || "None";
 
-            let s = data.streak || 0;
+            localStorage.setItem("streak", s);
+            localStorage.setItem("badge", b);
+            sessionStorage.setItem("stats_synced", "true");
+
+            if (countEl) countEl.textContent = s;
+            if (badgeEl) badgeEl.textContent = b;
+
             if (msgEl) {
                 if (s === 0)
                     msgEl.textContent = "Complete today's test to start a streak.";
@@ -500,23 +525,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    async function checkProfileCompletion() {
-        if (!userId) return;
-        try {
-            const res = await fetch(`${BASE_URL}/profile/${userId}`);
-            if (res.ok) {
-                const userProfile = await res.json();
-                localStorage.setItem("is_new_user", String(userProfile.isNewUser));
-                localStorage.setItem("mode", userProfile.role || "student");
-                localStorage.setItem("first_name", userProfile.firstName || "");
-                localStorage.setItem("last_name", userProfile.lastName || "");
-                
-                if (userProfile.isNewUser && sessionStorage.getItem("profile_popup_shown") !== "true") {
-                    showProfilePopup();
-                }
-            }
-        } catch (err) {
-            console.error("Error checking profile completion:", err);
+    function checkProfileCompletion() {
+        const isNewUser = localStorage.getItem("is_new_user");
+        if (isNewUser === "true" && sessionStorage.getItem("profile_popup_shown") !== "true") {
+            showProfilePopup();
         }
     }
 

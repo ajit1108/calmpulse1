@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
     const userId = localStorage.getItem("user_id");
     if (!userId) {
         window.location.href = "signin.html";
@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const BASE_URL = window.getApiBaseUrl();
 
-    // 1. Create or Find Nav-Right
+    // 1. Find or create Nav-Right container
     let navRight = document.querySelector(".nav-right");
     if (!navRight) {
         const nav = document.querySelector(".nav");
@@ -19,7 +19,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (navRight) {
-        // Render initial UI using localStorage fallbacks
+        // --- 1. INSTANT RENDER (Stale-While-Revalidate) ---
+        // Render immediately using localStorage to make page transitions instant
         const firstName = localStorage.getItem("first_name") || "User";
         const lastName = localStorage.getItem("last_name") || "";
         const fullName = (firstName + " " + lastName).trim();
@@ -27,29 +28,36 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         renderDropdown(fullName, initial);
 
-        // Fetch latest profile from DB to dynamically sync navbar and localStorage
-        try {
-            const res = await fetch(`${BASE_URL}/profile/${userId}`);
-            if (res.ok) {
-                const user = await res.json();
-                const dbFullName = ((user.firstName || "") + " " + (user.lastName || "")).trim() || "User";
-                const dbInitial = (user.firstName || "U").charAt(0).toUpperCase();
+        // Update welcome message instantly if it exists on the page
+        const welcomeEl = document.querySelector(".nav-content h5");
+        if (welcomeEl) welcomeEl.textContent = `Welcome, ${fullName}!`;
 
-                // Update localStorage
-                localStorage.setItem("first_name", user.firstName || "");
-                localStorage.setItem("last_name", user.lastName || "");
-                localStorage.setItem("mode", user.role || "student");
-                localStorage.setItem("is_new_user", String(user.isNewUser));
+        // --- 2. BACKGROUND SYNC (Once per Session) ---
+        // Only hit the backend if we haven't synced in this session yet
+        if (sessionStorage.getItem("profile_synced") !== "true" || !localStorage.getItem("first_name")) {
+            fetch(`${BASE_URL}/profile/${userId}`)
+                .then(res => {
+                    if (res.ok) return res.json();
+                    throw new Error("Failed to fetch");
+                })
+                .then(user => {
+                    const dbFullName = ((user.firstName || "") + " " + (user.lastName || "")).trim() || "User";
+                    const dbInitial = (user.firstName || "U").charAt(0).toUpperCase();
 
-                // Re-render with fresh database values
-                renderDropdown(dbFullName, dbInitial);
+                    // Sync storage
+                    localStorage.setItem("first_name", user.firstName || "");
+                    localStorage.setItem("last_name", user.lastName || "");
+                    localStorage.setItem("mode", user.role || "student");
+                    localStorage.setItem("is_new_user", String(user.isNewUser));
+                    
+                    // Mark session as synced
+                    sessionStorage.setItem("profile_synced", "true");
 
-                // Set welcome message if on dashboard
-                const welcomeEl = document.querySelector(".nav-content h5");
-                if (welcomeEl) welcomeEl.textContent = `Welcome, ${dbFullName}!`;
-            }
-        } catch (err) {
-            console.error("Error syncing profile details:", err);
+                    // Re-render dropdown quietly with fresh DB values
+                    renderDropdown(dbFullName, dbInitial);
+                    if (welcomeEl) welcomeEl.textContent = `Welcome, ${dbFullName}!`;
+                })
+                .catch(err => console.warn("Background profile sync deferred:", err));
         }
     }
 
@@ -90,6 +98,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             signoutBtn.addEventListener("click", (e) => {
                 e.preventDefault();
                 localStorage.clear();
+                sessionStorage.clear();
                 window.location.href = "signin.html";
             });
         }
