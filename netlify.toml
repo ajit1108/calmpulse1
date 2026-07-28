@@ -1,2 +1,3 @@
 [build]
-  publish = "Front end/CalmPulse"
+  base = "Front end"
+  publish = "CalmPulse"
