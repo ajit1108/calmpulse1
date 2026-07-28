@@ -43,4 +43,19 @@ public class User {
     @Field("is_new_user")
     @Builder.Default
     private Boolean isNewUser = true;
+
+    @Field("streak")
+    @Builder.Default
+    private Integer streak = 0;
+
+    @Field("longest_streak")
+    @Builder.Default
+    private Integer longestStreak = 0;
+
+    @Field("last_login_date")
+    private java.time.LocalDate lastLoginDate;
+
+    @Field("badge")
+    @Builder.Default
+    private String badge = "None";
 }

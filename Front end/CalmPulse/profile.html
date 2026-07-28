@@ -63,6 +63,7 @@
         </div>
     </div>
 <script src="api-config.js"></script>
+<script src="auth-helper.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const BASE_URL = window.getApiBaseUrl();
@@ -90,7 +91,12 @@ document.addEventListener("DOMContentLoaded", function () {
     // Load existing profile
     if (savedProfile) {
         fillProfile(savedProfile);
-        disableInputs();
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('edit') === 'true') {
+            enableInputs();
+        } else {
+            disableInputs();
+        }
     } else {
         enableInputs();
     }
@@ -175,11 +181,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Logout
-    signoutBtn.addEventListener("click", function () {
-        localStorage.removeItem("user_id");
-        localStorage.removeItem("is_new_user");
-        window.location.href = "signin.html";
-    });
+    if (signoutBtn) {
+        signoutBtn.addEventListener("click", function () {
+            localStorage.clear();
+            window.location.href = "signin.html";
+        });
+    }
 
     // Fill profile fields
     function fillProfile(profile) {

@@ -6,6 +6,8 @@
     <link rel="stylesheet" type="text/css" href="post-login.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>Information Forum</title>
+    <script src="api-config.js"></script>
+    <script src="auth-helper.js"></script>
 </head>
 <body>
       <div class="nav">
@@ -212,21 +214,19 @@
 
     </section>
     <script>
-    
     const userMode = localStorage.getItem('mode');
-
-if ( !userMode) {
-    alert("Please complete your profile first.");
-    window.location.href = 'profile.html';
-} 
-document.getElementById('signout-btn').addEventListener('click', () => {
-   
-    localStorage.removeItem('mode');
-    window.location.href = 'signin.html';
-});
-
-
-  </script>
+    if (!userMode) {
+        alert("Please complete your profile first.");
+        window.location.href = 'profile.html';
+    } 
+    const signoutBtn = document.getElementById('signout-btn');
+    if (signoutBtn) {
+        signoutBtn.addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'signin.html';
+        });
+    }
+    </script>
 
     
   </div>

@@ -130,6 +130,7 @@
 </div>
 
 <script src="api-config.js"></script>
+<script src="auth-helper.js"></script>
 <script>
 // -------------------- PRELOADER --------------------
 window.addEventListener("load", function () {
@@ -303,10 +304,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // ------------------ SIGN OUT ------------------
-    signOutBtn.addEventListener("click", () => {
-        localStorage.clear();
-        window.location.href = "signin.html";
-    });
+    if (signOutBtn) {
+        signOutBtn.addEventListener("click", () => {
+            localStorage.clear();
+            window.location.href = "signin.html";
+        });
+    }
 
     // ------------------ VOICE INPUT ------------------
     let recognition;
@@ -376,32 +379,193 @@ document.addEventListener("DOMContentLoaded", function () {
     async function loadUserInfo() {
         if (!userId) return;
 
+        const countEl = document.getElementById("streak-count");
+        const badgeEl = document.getElementById("user-badge");
+        const msgEl = document.getElementById("streak-msg");
+
+        if (countEl && badgeEl) {
+            countEl.innerHTML = '<span class="skeleton-box" style="display:inline-block; width:40px; height:30px;"></span>';
+            badgeEl.innerHTML = '<span class="skeleton-box" style="display:inline-block; width:80px; height:15px;"></span>';
+        }
+
         try {
             const res = await fetch(`${BASE_URL}/user/${userId}/info`);
-            if (!res.ok) return;
+            if (!res.ok) throw new Error("Could not contact stats service.");
 
             const data = await res.json();
-            document.getElementById("streak-count").textContent = data.streak || 0;
-            document.getElementById("user-badge").textContent = data.badge || "None";
+            if (countEl) countEl.textContent = data.streak || 0;
+            if (badgeEl) badgeEl.textContent = data.badge || "None";
 
-            const msg = document.getElementById("streak-msg");
             let s = data.streak || 0;
-
-            if (s === 0)
-                msg.textContent = "Complete today's test to start a streak.";
-            else if (s === 1)
-                msg.textContent = "Nice — you completed today's test!";
-            else
-                msg.textContent = `Great! You are on a ${s}-day streak.`;
+            if (msgEl) {
+                if (s === 0)
+                    msgEl.textContent = "Complete today's test to start a streak.";
+                else if (s === 1)
+                    msgEl.textContent = "Nice — you completed today's test!";
+                else
+                    msgEl.textContent = `Great! You are on a ${s}-day streak.`;
+            }
 
         } catch (err) {
-            console.log("Error loading streak", err);
+            console.error("Error loading streak", err);
+            if (countEl) countEl.textContent = "--";
+            if (badgeEl) badgeEl.textContent = "Error";
+            if (msgEl) msgEl.textContent = "Failed to load streak stats. Please refresh the page.";
+        }
+    }
+
+    // ---------------- PROFILE POPUP LOGIC ----------------
+    function showProfilePopup() {
+        const overlay = document.getElementById("profile-modal-overlay");
+        if (overlay) {
+            overlay.classList.add("show");
+
+            const closeBtn = document.getElementById("modal-close-btn");
+            if (closeBtn) {
+                closeBtn.onclick = () => {
+                    overlay.classList.remove("show");
+                    sessionStorage.setItem("profile_popup_shown", "true");
+                };
+            }
+
+            const form = document.getElementById("modal-profile-form");
+            if (form) {
+                form.onsubmit = async (e) => {
+                    e.preventDefault();
+
+                    const fname = document.getElementById("modal-fname").value.trim();
+                    const lname = document.getElementById("modal-lname").value.trim();
+                    const contact = document.getElementById("modal-contact").value.trim();
+                    const age = parseInt(document.getElementById("modal-age").value);
+                    
+                    let selectedMode = "";
+                    const modeRadios = document.getElementsByName("modal-mode");
+                    for (let r of modeRadios) {
+                        if (r.checked) selectedMode = r.value;
+                    }
+
+                    if (!fname || !lname) {
+                        alert("First and last name are required.");
+                        return;
+                    }
+                    if (!/^[0-9]{10}$/.test(contact)) {
+                        alert("Enter a valid 10-digit contact number.");
+                        return;
+                    }
+                    if (isNaN(age) || age < 10) {
+                        alert("Age must be 10 or older.");
+                        return;
+                    }
+
+                    const payload = {
+                        user_id: userId,
+                        first_name: fname,
+                        last_name: lname,
+                        contact: contact,
+                        age: age,
+                        gender: document.getElementById("modal-gender").value,
+                        mode: selectedMode
+                    };
+
+                    try {
+                        const res = await fetch(`${BASE_URL}/profile`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await res.json().catch(() => ({}));
+                        if (!res.ok) throw new Error(data.error || "Failed to save profile.");
+
+                        localStorage.setItem("is_new_user", "false");
+                        localStorage.setItem("mode", payload.mode);
+                        localStorage.setItem("first_name", payload.first_name);
+                        localStorage.setItem("last_name", payload.last_name);
+
+                        const triggerName = document.getElementById("nav-username");
+                        if (triggerName) triggerName.textContent = payload.first_name + " " + payload.last_name;
+                        const triggerAvatar = document.getElementById("nav-avatar");
+                        if (triggerAvatar) triggerAvatar.textContent = payload.first_name.charAt(0).toUpperCase();
+
+                        const welcomeEl = document.querySelector(".nav-content h5");
+                        if (welcomeEl) welcomeEl.textContent = `Welcome, ${payload.first_name + " " + payload.last_name}!`;
+
+                        overlay.classList.remove("show");
+                        alert("Profile completed successfully!");
+                    } catch (err) {
+                        alert("Error: " + err.message);
+                    }
+                };
+            }
+        }
+    }
+
+    async function checkProfileCompletion() {
+        if (!userId) return;
+        try {
+            const res = await fetch(`${BASE_URL}/profile/${userId}`);
+            if (res.ok) {
+                const userProfile = await res.json();
+                localStorage.setItem("is_new_user", String(userProfile.isNewUser));
+                localStorage.setItem("mode", userProfile.role || "student");
+                localStorage.setItem("first_name", userProfile.firstName || "");
+                localStorage.setItem("last_name", userProfile.lastName || "");
+                
+                if (userProfile.isNewUser && sessionStorage.getItem("profile_popup_shown") !== "true") {
+                    showProfilePopup();
+                }
+            }
+        } catch (err) {
+            console.error("Error checking profile completion:", err);
         }
     }
 
     loadUserInfo();
+    checkProfileCompletion();
 
 });
 </script>
+
+<!-- PROFILE COMPLETION MODAL -->
+<div class="modal-overlay" id="profile-modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Complete Your Profile</h3>
+      <button class="modal-close-btn" id="modal-close-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="modal-profile-form">
+        <label for="modal-fname">First Name</label>
+        <input type="text" id="modal-fname" placeholder="Enter your first name" required>
+
+        <label for="modal-lname">Last Name</label>
+        <input type="text" id="modal-lname" placeholder="Enter your last name" required>
+
+        <label for="modal-contact">Contact</label>
+        <input type="tel" id="modal-contact" placeholder="Enter 10-digit mobile number" required>
+
+        <label for="modal-age">Age</label>
+        <input type="number" id="modal-age" placeholder="Enter your age" required>
+
+        <label for="modal-gender">Gender</label>
+        <select id="modal-gender" required>
+          <option value="">Select Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <label>Mode</label>
+        <div class="radio-group">
+          <label><input type="radio" name="modal-mode" value="student" required> Student</label>
+          <label><input type="radio" name="modal-mode" value="employee" required> Employee</label>
+        </div>
+
+        <button type="submit" class="modal-submit-btn">Save & Complete Profile</button>
+      </form>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

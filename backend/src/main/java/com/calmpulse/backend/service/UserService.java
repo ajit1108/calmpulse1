@@ -58,6 +58,46 @@ public class UserService {
             throw new InvalidCredentialsException("Invalid credentials");
         }
 
+        // --- STREAK & BADGE LOGIC ---
+        java.time.LocalDate today = java.time.LocalDate.now();
+        if (user.getLastLoginDate() == null) {
+            user.setStreak(1);
+            user.setLongestStreak(1);
+            user.setLastLoginDate(today);
+        } else {
+            java.time.LocalDate lastLogin = user.getLastLoginDate();
+            if (!lastLogin.equals(today)) {
+                if (lastLogin.plusDays(1).equals(today)) {
+                    // Consecutive login
+                    int currentStreak = user.getStreak() != null ? user.getStreak() : 0;
+                    user.setStreak(currentStreak + 1);
+                    int longest = user.getLongestStreak() != null ? user.getLongestStreak() : 0;
+                    user.setLongestStreak(Math.max(longest, user.getStreak()));
+                } else {
+                    // Missed day
+                    user.setStreak(1);
+                }
+                user.setLastLoginDate(today);
+            }
+        }
+
+        // Dynamically compute badge based on updated streak
+        int streak = user.getStreak() != null ? user.getStreak() : 0;
+        if (streak >= 30) {
+            user.setBadge("Zen Master 👑");
+        } else if (streak >= 15) {
+            user.setBadge("Mindfulness Guru 🧘");
+        } else if (streak >= 7) {
+            user.setBadge("Stress Buster ⚡");
+        } else if (streak >= 3) {
+            user.setBadge("Calm Achiever ⭐");
+        } else {
+            user.setBadge("None");
+        }
+
+        userRepository.save(user);
+        // -----------------------------
+
         return LoginResponse.builder()
                 .message("Login successful")
                 .userId(user.getId())
@@ -82,5 +122,10 @@ public class UserService {
         user.setIsNewUser(false);
 
         userRepository.save(user);
+    }
+
+    public User getUserById(String id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
 }
