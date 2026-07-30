@@ -28,6 +28,18 @@ public class HistoryService {
                     .virtualMeetings(record.getVirtualMeetings())
                     .anxietyLevel(record.getAnxietyLevel())
                     .depression(record.getDepression())
+                    .workLifeBalance(record.getWorkLifeBalance())
+                    .accessToMentalHealth(record.getAccessToMentalHealth())
+                    .satisfactionWithRemoteWork(record.getSatisfactionWithRemoteWork())
+                    .companySupport(record.getCompanySupport())
+                    .physicalActivity(record.getPhysicalActivity())
+                    .academicPerformance(record.getAcademicPerformance())
+                    .studyLoad(record.getStudyLoad())
+                    .teacherStudentRelationship(record.getTeacherStudentRelationship())
+                    .futureCareerConcerns(record.getFutureCareerConcerns())
+                    .socialSupport(record.getSocialSupport())
+                    .peerPressure(record.getPeerPressure())
+                    .extracurricularLoad(record.getExtracurricularLoad())
                     .build();
 
             return HistoryResponse.builder()

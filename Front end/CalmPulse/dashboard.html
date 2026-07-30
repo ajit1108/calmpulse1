@@ -30,17 +30,52 @@
     </div>
 
     <div class="content1">
-        <!-- STREAK & BADGE CARD -->
-        <div id="streak-card" class="streak-card">
-          <h3>Daily Streak</h3>
-          <div class="streak-number"><strong id="streak-count">0</strong> days</div>
-          <div class="streak-badge">Badge: <span id="user-badge">None</span></div>
-          <div id="streak-msg" class="streak-msg">Complete today's test to start a streak.</div>
+        <h1 style="color:#18310e; font-size:2.2rem; margin:0 0 10px 0; width:85%; max-width:950px; text-align:left;">Welcome back, <span id="welcome-display-name">User</span>!</h1>
+        
+        <!-- DASHBOARD CARDS GRID -->
+        <div class="dashboard-grid">
+            <!-- Streak Card -->
+            <div class="dashboard-card" style="background: linear-gradient(135deg, #f4faf6, #e8f5e9); border: 1px solid #c8e6c9;">
+                <i class="fa-solid fa-fire" style="color: #ff9800;"></i>
+                <h3>Daily Streak</h3>
+                <p class="card-value" id="streak-count">0</p>
+                <span id="user-badge" style="font-size: 0.85rem; font-weight: bold; background: #c8e6c9; padding: 4px 10px; border-radius: 12px; margin-top: 8px; color: #2e7d32;">None</span>
+            </div>
+            
+            <!-- Total Predictions Card -->
+            <div class="dashboard-card">
+                <i class="fa-solid fa-clipboard-list" style="color: #2196f3;"></i>
+                <h3>Total Predictions</h3>
+                <p class="card-value" id="total-predictions">0</p>
+            </div>
+            
+            <!-- Stress Level Card -->
+            <div class="dashboard-card">
+                <i class="fa-solid fa-gauge-high" style="color: #f44336;"></i>
+                <h3>Stress Level</h3>
+                <p class="card-value" id="latest-stress">N/A</p>
+            </div>
+            
+            <!-- Mood/Anxiety Card -->
+            <div class="dashboard-card">
+                <i class="fa-solid fa-face-smile" style="color: #9c27b0;"></i>
+                <h3>Anxiety Level</h3>
+                <p class="card-value" id="latest-anxiety">N/A</p>
+            </div>
         </div>
 
-        <div class="check-stress-section" id="check-stress-section">
-            <img src="images/checkstress-db.jpg"><br>
+        <!-- Check Stress Trigger Button Card -->
+        <div class="check-stress-section" id="check-stress-section" style="width: 85%; max-width: 950px;">
+            <img src="images/checkstress-db.jpg" style="width:100%; max-width:400px;"><br>
             <button class="check-stress-btn" id="check-stress-btn"> Check Stress Level</button>
+        </div>
+
+        <!-- RECENT ACTIVITY CARD -->
+        <div class="activity-card" id="activity-card">
+            <h3>Recent Predictions</h3>
+            <div class="activity-list" id="activity-list">
+                <p style="color:#777; font-style:italic; margin:0;">No recent predictions found. Click "Check Stress Level" to start.</p>
+            </div>
         </div>
         
         <!-- STUDENT FORM -->
@@ -532,8 +567,116 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // ---------------- LOAD ADDITIONAL DASHBOARD METRICS ----------------
+    async function loadDashboardMetrics() {
+        if (!userId) return;
+
+        const totalPredEl = document.getElementById("total-predictions");
+        const latestStressEl = document.getElementById("latest-stress");
+        const latestAnxietyEl = document.getElementById("latest-anxiety");
+        const activityListEl = document.getElementById("activity-list");
+
+        // Show skeletons initially
+        if (totalPredEl) totalPredEl.innerHTML = '<span class="skeleton-box" style="display:inline-block; width:50px; height:20px;"></span>';
+        if (latestStressEl) latestStressEl.innerHTML = '<span class="skeleton-box" style="display:inline-block; width:60px; height:20px;"></span>';
+        if (latestAnxietyEl) latestAnxietyEl.innerHTML = '<span class="skeleton-box" style="display:inline-block; width:60px; height:20px;"></span>';
+
+        try {
+            const res = await fetch(`${BASE_URL}/history/${userId}`);
+            if (!res.ok) throw new Error("Could not retrieve history.");
+
+            const data = await res.json();
+            if (!Array.isArray(data) || data.length === 0) {
+                if (totalPredEl) totalPredEl.textContent = "0";
+                if (latestStressEl) latestStressEl.textContent = "N/A";
+                if (latestAnxietyEl) latestAnxietyEl.textContent = "N/A";
+                return;
+            }
+
+            // 1. Total Predictions
+            if (totalPredEl) totalPredEl.textContent = data.length;
+
+            // Sort data by timestamp descending for latest assessments
+            data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            // 2. Latest Stress Level
+            const latest = data[0];
+            if (latestStressEl) {
+                const score = Number(latest.stress_score);
+                latestStressEl.textContent = isNaN(score) ? "N/A" : score.toFixed(1);
+            }
+
+            // 3. Latest Anxiety Level (Student checks anxiety_level directly, Employee maps satisfaction or defaults)
+            if (latestAnxietyEl) {
+                const factors = latest.factors || {};
+                if (factors.anxiety_level !== undefined) {
+                    latestAnxietyEl.textContent = factors.anxiety_level;
+                } else if (factors.work_life_balance !== undefined) {
+                    latestAnxietyEl.textContent = factors.work_life_balance + "/5";
+                } else {
+                    latestAnxietyEl.textContent = "N/A";
+                }
+            }
+
+            // 4. Render Recent Activity (up to 3 items)
+            if (activityListEl) {
+                activityListEl.innerHTML = "";
+                const itemsToShow = data.slice(0, 3);
+                itemsToShow.forEach(item => {
+                    const date = new Date(item.timestamp).toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    const score = Number(item.stress_score) || 0;
+                    
+                    let badgeColor = "#ffe082"; // Yellow
+                    let textColor = "#b78103";
+                    let levelText = "Moderate";
+                    if (score < 3.5) {
+                        badgeColor = "#c8e6c9"; // Green
+                        textColor = "#2e7d32";
+                        levelText = "Low";
+                    } else if (score > 7.0) {
+                        badgeColor = "#ffcdd2"; // Red
+                        textColor = "#c62828";
+                        levelText = "High";
+                    }
+
+                    const div = document.createElement("div");
+                    div.className = "activity-item";
+                    div.innerHTML = `
+                        <div class="activity-info">
+                            <span class="activity-title">${item.role === 'student' ? 'Academic' : 'Workplace'} Stress Check-in</span>
+                            <span class="activity-date">${date}</span>
+                        </div>
+                        <span class="activity-badge" style="background-color: ${badgeColor}; color: ${textColor};">${levelText} (${score.toFixed(1)})</span>
+                    `;
+                    activityListEl.appendChild(div);
+                });
+            }
+
+        } catch (err) {
+            console.error("Error loading dashboard metrics:", err);
+            if (totalPredEl) totalPredEl.textContent = "--";
+            if (latestStressEl) latestStressEl.textContent = "--";
+            if (latestAnxietyEl) latestAnxietyEl.textContent = "--";
+        }
+    }
+
     loadUserInfo();
     checkProfileCompletion();
+    loadDashboardMetrics();
+
+    // Set Welcome Display Name
+    const welcomeDisplayName = document.getElementById("welcome-display-name");
+    if (welcomeDisplayName) {
+        const firstName = localStorage.getItem("first_name") || "User";
+        const lastName = localStorage.getItem("last_name") || "";
+        welcomeDisplayName.textContent = (firstName + " " + lastName).trim() || "User";
+    }
 
 });
 </script>

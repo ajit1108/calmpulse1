@@ -38,5 +38,41 @@ public class HistoryResponse {
         private Integer anxietyLevel;
 
         private Integer depression;
+
+        @JsonProperty("work_life_balance")
+        private Integer workLifeBalance;
+
+        @JsonProperty("access_to_mental_health")
+        private String accessToMentalHealth;
+
+        @JsonProperty("satisfaction_with_remote_work")
+        private String satisfactionWithRemoteWork;
+
+        @JsonProperty("company_support")
+        private Integer companySupport;
+
+        @JsonProperty("physical_activity")
+        private String physicalActivity;
+
+        @JsonProperty("academic_performance")
+        private Integer academicPerformance;
+
+        @JsonProperty("study_load")
+        private Integer studyLoad;
+
+        @JsonProperty("teacher_student_relationship")
+        private Integer teacherStudentRelationship;
+
+        @JsonProperty("future_career_concerns")
+        private Integer futureCareerConcerns;
+
+        @JsonProperty("social_support")
+        private Integer socialSupport;
+
+        @JsonProperty("peer_pressure")
+        private Integer peerPressure;
+
+        @JsonProperty("extracurricular_load")
+        private Integer extracurricularLoad;
     }
 }

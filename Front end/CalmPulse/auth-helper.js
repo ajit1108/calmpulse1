@@ -70,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
                 </div>
                 <div class="dropdown-menu" id="profile-dropdown">
+                    <a href="dashboard.html"><i class="fa-solid fa-house"></i> Dashboard</a>
                     <a href="profile.html"><i class="fa-solid fa-user"></i> My Profile</a>
                     <a href="profile.html?edit=true"><i class="fa-solid fa-pen-to-square"></i> Edit Profile</a>
                     <a href="#" id="dropdown-signout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
