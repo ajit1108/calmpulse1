@@ -7,6 +7,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const BASE_URL = window.getApiBaseUrl();
 
+    // Warm up the Python ML microservice asynchronously in the background (prevents Render spin-down 502/Gateway Timeouts)
+    fetch("https://calmpulse1.onrender.com/health", { mode: 'no-cors' })
+        .then(() => console.log("ML service warm-up ping sent successfully."))
+        .catch(err => console.warn("Warm-up ping deferred:", err));
+
     // 1. Find or create Nav-Right container
     let navRight = document.querySelector(".nav-right");
     if (!navRight) {

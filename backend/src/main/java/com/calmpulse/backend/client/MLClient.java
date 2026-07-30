@@ -40,25 +40,42 @@ public class MLClient {
 
         HttpEntity<MlPredictRequest> requestEntity = new HttpEntity<>(requestPayload, headers);
 
-        try {
-            ResponseEntity<MlPredictResponse> response = restTemplate.postForEntity(
-                    endpoint,
-                    requestEntity,
-                    MlPredictResponse.class
-            );
+        int maxRetries = 3;
+        int delayMs = 3000;
+        ResponseEntity<MlPredictResponse> response = null;
+        Exception lastException = null;
 
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null && response.getBody().getStressScore() != null) {
-                Double score = response.getBody().getStressScore();
-                log.info("Successfully received stress score from ML service: {}", score);
-                return score;
-            } else {
-                log.error("ML service returned unsuccessful response: {}", response.getStatusCode());
-                throw new RuntimeException("ML service returned status: " + response.getStatusCode());
+        for (int i = 0; i < maxRetries; i++) {
+            try {
+                log.info("Sending prediction request to Python ML Service (Attempt {}/{})", i + 1, maxRetries);
+                response = restTemplate.postForEntity(
+                        endpoint,
+                        requestEntity,
+                        MlPredictResponse.class
+                );
+                if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                    break;
+                }
+            } catch (Exception e) {
+                lastException = e;
+                log.warn("Attempt {} failed to contact ML service: {}. Retrying in {}ms...", i + 1, e.getMessage(), delayMs);
+                try {
+                    Thread.sleep(delayMs);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Prediction interrupted", ie);
+                }
             }
-
-        } catch (RestClientException e) {
-            log.error("Error communicating with Python ML microservice: {}", e.getMessage());
-            throw new RuntimeException("Unable to contact ML microservice. Details: " + e.getMessage(), e);
         }
+
+        if (response == null || !response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+            String errorMsg = lastException != null ? lastException.getMessage() : "Invalid response";
+            log.error("Failed to contact Python ML service after {} attempts: {}", maxRetries, errorMsg);
+            throw new RuntimeException("Unable to contact ML microservice. Details: " + errorMsg, lastException);
+        }
+
+        Double score = response.getBody().getStressScore();
+        log.info("Successfully received stress score from ML service: {}", score);
+        return score;
     }
 }
