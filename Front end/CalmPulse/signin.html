@@ -121,7 +121,8 @@
             spinner.classList.remove("d-none");
 
             try {
-                const res = await fetch(`${BASE_URL}/auth/login`, {
+                // Correct Spring Boot Auth Endpoint is POST /login
+                const res = await fetch(`${BASE_URL}/login`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password })
@@ -130,7 +131,10 @@
                 const data = await res.json().catch(() => ({}));
 
                 if (!res.ok) {
-                    throw new Error(data.message || data.error || "Invalid credentials or login failed.");
+                    if (res.status === 401) {
+                        throw new Error(data.message || data.error || "Invalid email or password.");
+                    }
+                    throw new Error(data.message || data.error || "Login failed on server.");
                 }
 
                 if (data.userId || data.user_id) {
@@ -146,11 +150,8 @@
                 // Immediately load current user state
                 const user = await window.loadCurrentUser(true);
 
-                if (data.isNewUser || data.is_new_user || (user && user.isNewUser)) {
-                    window.location.href = "dashboard.html";
-                } else {
-                    window.location.href = "dashboard.html";
-                }
+                // Always redirect to dashboard (dashboard handles profile completion modal for new users)
+                window.location.href = "dashboard.html";
             } catch (err) {
                 console.error("Sign-in error:", err);
                 showError(err.message || "Sign-in failed. Please check your connection and try again.");

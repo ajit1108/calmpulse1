@@ -8,9 +8,9 @@
 
     function isPublicPage() {
         const path = window.location.pathname.toLowerCase();
-        const page = path.split("/").pop();
-        if (!page || page === "") return true;
-        return PUBLIC_PAGES.includes(page);
+        const page = path.split("/").pop().toLowerCase();
+        if (!page || page === "" || page === "index.html") return true;
+        return PUBLIC_PAGES.some(p => p.toLowerCase() === page);
     }
 
     // Ping ML service warm-up asynchronously
@@ -52,7 +52,7 @@
             const res = await fetch(`${BASE_URL}/profile/${userId}`);
             if (!res.ok) {
                 if (res.status === 401 || res.status === 403) {
-                    window.logoutUser();
+                    if (!isPublicPage()) window.logoutUser();
                     return null;
                 }
                 throw new Error(`Profile load failed: ${res.status}`);
@@ -75,7 +75,6 @@
             return user;
         } catch (err) {
             console.error("Error in loadCurrentUser:", err);
-            // Fallback to offline stored credentials if available
             const fallbackUser = {
                 id: userId,
                 firstName: localStorage.getItem("first_name") || "User",
@@ -110,7 +109,7 @@
 
         // Find or create Nav-Right container
         let navRight = document.querySelector(".nav-right");
-        if (!navRight) {
+        if (!navRight && !isPublicPage()) {
             const nav = document.querySelector(".nav");
             if (nav) {
                 navRight = document.createElement("div");
@@ -119,7 +118,7 @@
             }
         }
 
-        if (navRight) {
+        if (navRight && !isPublicPage()) {
             const avatarHtml = profilePic 
                 ? `<img src="${profilePic}" alt="${fullName}" class="rounded-circle me-2" style="width:36px; height:36px; object-fit:cover;">`
                 : `<div class="avatar-circle rounded-circle me-2 bg-success text-white d-inline-flex align-items-center justify-content-center fw-bold" style="width:36px; height:36px; font-size:16px;">${initial}</div>`;
