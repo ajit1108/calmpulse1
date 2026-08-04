@@ -3,232 +3,404 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="post-login.css">
+    <title>User Profile - CalmPulse</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <title>Profile</title>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="post-login.css">
+    <style>
+        .profile-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(24, 49, 14, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            max-width: 750px;
+            margin: 0 auto;
+        }
+        .profile-avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #2e7d32;
+            color: #ffffff;
+            font-size: 2.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px auto;
+            border: 4px solid #e8f5e9;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+        }
+        .info-label {
+            font-weight: 600;
+            color: #4f5f56;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .info-value {
+            font-size: 1.1rem;
+            color: #18310e;
+            font-weight: 600;
+        }
+        .mode-badge {
+            font-size: 0.85rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body>
     <div class="nav">
-        <img src="images/logo.png">
+        <img src="images/logo.png" alt="CalmPulse Logo">
         <div class="nav-right">
-            <div class="nav-content">
-                <button id="signout-btn">Sign Out</button>
-            </div>
+            <!-- Navbar dynamic user dropdown rendered by auth-helper.js -->
         </div>
     </div>
 
-   <div class="sidebar">
+    <div class="sidebar">
         <a href="dashboard.html"><i class="fa-solid fa-house"></i><br><p>Dashboard</p></a>
         <a class="active" href="profile.html"><i class="fa-solid fa-user"></i><p>Profile</p></a>
-        <a href="history.html"><i class="fa-solid fa-chart-line"></i> <p>History</p></a>
+        <a href="history.html"><i class="fa-solid fa-chart-line"></i><p>History</p></a>
         <a href="Info.html"><i class="fa-solid fa-circle-info"></i><p>Information Forum</p></a>
         <a href="chat.html"><i class="fa-solid fa-comment"></i><p>Pulse Bot</p></a>
     </div>
 
-    <div class="content">
-        <div class="profile">
-            <h1>Your Profile</h1>
-            <form id="profile-form">
-                <label for="fname">First Name</label>
-                <input type="text" id="fname" name="fname" placeholder="Enter your first name" required>
+    <div class="content p-4">
+        <div class="container py-2">
+            <!-- Notification Alert -->
+            <div id="profile-alert" class="alert alert-dismissible fade show d-none" role="alert">
+                <span id="profile-alert-msg"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
 
-                <label for="lname">Last Name</label>
-                <input type="text" id="lname" name="lname" placeholder="Enter your last name" required>
+            <div class="profile-card p-4 p-md-5">
+                <!-- VIEW MODE -->
+                <div id="view-mode">
+                    <div class="text-center mb-4">
+                        <div class="profile-avatar-large" id="view-avatar">U</div>
+                        <h2 class="fw-bold mb-1" id="view-fullname" style="color: #18310e;">User Name</h2>
+                        <p class="text-muted mb-2" id="view-email">user@example.com</p>
+                        <span class="mode-badge bg-success-subtle text-success border border-success-subtle" id="view-role-badge">Student</span>
+                    </div>
 
-                <label for="contact">Contact</label>
-                <input type="tel" id="contact" name="contact" placeholder="Enter mobile number" required>
+                    <hr class="my-4" style="opacity: 0.15;">
 
-                <label for="age">Age</label>
-                <input type="number" id="age" name="age" placeholder="Enter your age" required>
+                    <div class="row g-4 mb-4">
+                        <div class="col-sm-6">
+                            <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                                <div class="info-label mb-1"><i class="fa-solid fa-cake-candles me-2 text-success"></i>Age</div>
+                                <div class="info-value" id="view-age">--</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                                <div class="info-label mb-1"><i class="fa-solid fa-venus-mars me-2 text-success"></i>Gender</div>
+                                <div class="info-value" id="view-gender">--</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                                <div class="info-label mb-1"><i class="fa-solid fa-phone me-2 text-success"></i>Contact</div>
+                                <div class="info-value" id="view-contact">--</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                                <div class="info-label mb-1"><i class="fa-solid fa-briefcase me-2 text-success"></i>Occupation / Role</div>
+                                <div class="info-value text-capitalize" id="view-occupation">--</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                                <div class="info-label mb-1"><i class="fa-solid fa-fire me-2 text-warning"></i>Current Streak</div>
+                                <div class="info-value" id="view-streak">0 days</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                                <div class="info-label mb-1"><i class="fa-solid fa-award me-2 text-warning"></i>Earned Badge</div>
+                                <div class="info-value" id="view-badge">None</div>
+                            </div>
+                        </div>
+                    </div>
 
-                <label for="gender">Gender</label>
-                <select id="gender" name="gender" required>
-                    <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                </select>
-
-                <label for="mode">Mode</label>
-                <div class="radio-Group">
-                    <label><input type="radio" name="mode" value="student" required>Student</label>
-                    <label><input type="radio" name="mode" value="employee" required>Employee</label>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button class="btn btn-success px-4 py-2 fw-semibold" id="enter-edit-mode-btn">
+                            <i class="fa-solid fa-pen-to-square me-2"></i>Edit Profile
+                        </button>
+                    </div>
                 </div>
 
-                <div class="buttons">
-                    <button class="save-btn" type="submit">Save</button>
-                    <button class="edit-btn">Edit</button>
+                <!-- EDIT MODE -->
+                <div id="edit-mode" style="display: none;">
+                    <div class="d-flex align-items-center mb-4">
+                        <i class="fa-solid fa-user-gear fs-3 text-success me-3"></i>
+                        <div>
+                            <h3 class="fw-bold mb-0" id="edit-title" style="color: #18310e;">Edit Profile</h3>
+                            <p class="text-muted small mb-0">Update your account information saved in MongoDB</p>
+                        </div>
+                    </div>
+
+                    <form id="profile-edit-form">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="input-fname" class="form-label fw-semibold">First Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="input-fname" placeholder="Enter first name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="input-lname" class="form-label fw-semibold">Last Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="input-lname" placeholder="Enter last name" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="input-email" class="form-label fw-semibold">Email Address</label>
+                                <input type="email" class="form-control bg-light" id="input-email" disabled>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="input-contact" class="form-label fw-semibold">Contact Number <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="input-contact" placeholder="10-digit mobile number" required pattern="^[0-9]{10}$">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="input-age" class="form-label fw-semibold">Age <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="input-age" min="10" max="120" placeholder="Enter age" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="select-gender" class="form-label fw-semibold">Gender <span class="text-danger">*</span></label>
+                                <select class="form-select" id="select-gender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Role / Occupation Mode <span class="text-danger">*</span></label>
+                                <div class="d-flex gap-4 p-3 bg-light rounded border">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="input-mode" id="mode-student" value="student" required>
+                                        <label class="form-check-label fw-medium" for="mode-student">
+                                            <i class="fa-solid fa-graduation-cap me-1 text-success"></i> Student
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="input-mode" id="mode-employee" value="employee" required>
+                                        <label class="form-check-label fw-medium" for="mode-employee">
+                                            <i class="fa-solid fa-user-tie me-1 text-primary"></i> Employee
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                            <button type="button" class="btn btn-outline-secondary px-4 fw-semibold" id="cancel-edit-btn">
+                                <i class="fa-solid fa-xmark me-2"></i>Cancel
+                            </button>
+                            <button type="submit" class="btn btn-success px-4 fw-semibold" id="save-profile-btn">
+                                <span class="spinner-border spinner-border-sm me-2 d-none" id="save-spinner" role="status"></span>
+                                <i class="fa-solid fa-floppy-disk me-2" id="save-icon"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
-<script src="api-config.js"></script>
-<script src="auth-helper.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const BASE_URL = window.getApiBaseUrl();
 
-    const fnameInput = document.getElementById("fname");
-    const lnameInput = document.getElementById("lname");
-    const contactInput = document.getElementById("contact");
-    const ageInput = document.getElementById("age");
-    const genderSelect = document.getElementById("gender");
-    const modeRadios = document.getElementsByName("mode");
-    const saveBtn = document.querySelector(".save-btn");
-    const editBtn = document.querySelector(".edit-btn");
-    const signoutBtn = document.getElementById("signout-btn");
-
-    const currentUserId = localStorage.getItem("user_id");
-    if (!currentUserId) {
-        alert("User not signed in. Redirecting to login...");
-        window.location.href = "signin.html";
-        return;
-    }
-
-    const profileKey = `profileData_${currentUserId}`;
-    const savedProfile = JSON.parse(localStorage.getItem(profileKey));
-
-    // Load existing profile
-    if (savedProfile) {
-        fillProfile(savedProfile);
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('edit') === 'true') {
-            enableInputs();
-        } else {
-            disableInputs();
-        }
-    } else {
-        enableInputs();
-    }
-
-    // Save profile
-    saveBtn.addEventListener("click", async function (e) {
-        e.preventDefault();
-
-        let selectedMode = "";
-        for (let radio of modeRadios) {
-            if (radio.checked) selectedMode = radio.value;
-        }
-
-        if (!fnameInput.value.trim() || !lnameInput.value.trim()) {
-            alert("First and last name are required.");
-            return;
-        }
-        if (!/^[0-9]{10}$/.test(contactInput.value.trim())) {
-            alert("Enter a valid 10-digit contact number.");
-            return;
-        }
-        const ageVal = parseInt(ageInput.value);
-        if (isNaN(ageVal) || ageVal < 10) {
-            alert("Age must be 10 or older.");
-            return;
-        }
-        if (!genderSelect.value) {
-            alert("Please select a gender.");
-            return;
-        }
-        if (!selectedMode) {
-            alert("Select mode (Student / Employee).");
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="api-config.js"></script>
+    <script src="auth-helper.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", async function () {
+        const userId = localStorage.getItem("user_id");
+        if (!userId) {
+            window.location.href = "signin.html";
             return;
         }
 
-        const payload = {
-            user_id: currentUserId,
-            first_name: fnameInput.value.trim(),
-            last_name: lnameInput.value.trim(),
-            contact: contactInput.value.trim(),
-            age: ageVal,
-            gender: genderSelect.value,
-            mode: selectedMode
-        };
+        const BASE_URL = window.getApiBaseUrl();
 
-        try {
-            const res = await fetch(`${BASE_URL}/profile`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
+        // Elements
+        const viewModeDiv = document.getElementById("view-mode");
+        const editModeDiv = document.getElementById("edit-mode");
+        const enterEditBtn = document.getElementById("enter-edit-mode-btn");
+        const cancelEditBtn = document.getElementById("cancel-edit-btn");
+        const editForm = document.getElementById("profile-edit-form");
+        const alertBox = document.getElementById("profile-alert");
+        const alertMsg = document.getElementById("profile-alert-msg");
+        const saveBtn = document.getElementById("save-profile-btn");
+        const saveSpinner = document.getElementById("save-spinner");
+        const saveIcon = document.getElementById("save-icon");
 
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) throw new Error(data.error || "Failed to save profile on server.");
+        let currentUser = null;
 
-            const localProfile = {
-                fname: payload.first_name,
-                lname: payload.last_name,
-                contact: payload.contact,
-                age: payload.age,
-                gender: payload.gender,
-                mode: payload.mode
+        function showAlert(message, type = "success") {
+            alertBox.className = `alert alert-${type} alert-dismissible fade show`;
+            alertMsg.textContent = message;
+            alertBox.classList.remove("d-none");
+        }
+
+        // Fetch User Data from backend
+        async function fetchProfile() {
+            try {
+                currentUser = await window.loadCurrentUser(true);
+                if (!currentUser) throw new Error("Failed to load user");
+                renderViewMode(currentUser);
+
+                // Check query param ?edit=true or if profile is incomplete
+                const urlParams = new URLSearchParams(window.location.search);
+                const shouldEdit = urlParams.get("edit") === "true";
+                const isIncomplete = currentUser.isNewUser || !currentUser.age || !currentUser.gender;
+
+                if (shouldEdit || isIncomplete) {
+                    if (isIncomplete) {
+                        showAlert("Please complete your profile details below.", "warning");
+                    }
+                    switchToEditMode();
+                } else {
+                    switchToViewMode();
+                }
+            } catch (err) {
+                console.error("Error loading profile:", err);
+                showAlert("Could not retrieve profile data from server: " + err.message, "danger");
+            }
+        }
+
+        function renderViewMode(user) {
+            const fname = user.firstName || "";
+            const lname = user.lastName || "";
+            const fullName = `${fname} ${lname}`.trim() || "User";
+            const initial = fname.charAt(0).toUpperCase() || "U";
+
+            document.getElementById("view-avatar").textContent = initial;
+            document.getElementById("view-fullname").textContent = fullName;
+            document.getElementById("view-email").textContent = user.email || "No email available";
+            document.getElementById("view-role-badge").textContent = (user.role || "student").toUpperCase();
+            document.getElementById("view-age").textContent = user.age ? `${user.age} years` : "Not specified";
+            document.getElementById("view-gender").textContent = user.gender || "Not specified";
+            document.getElementById("view-contact").textContent = user.contact || "Not specified";
+            document.getElementById("view-occupation").textContent = user.role || "Student";
+            document.getElementById("view-streak").textContent = `${user.streak || 0} days`;
+            document.getElementById("view-badge").textContent = user.badge || "None";
+        }
+
+        function populateEditForm(user) {
+            document.getElementById("input-fname").value = user.firstName || "";
+            document.getElementById("input-lname").value = user.lastName || "";
+            document.getElementById("input-email").value = user.email || "";
+            document.getElementById("input-contact").value = user.contact || "";
+            document.getElementById("input-age").value = user.age || "";
+            document.getElementById("select-gender").value = user.gender || "";
+
+            const role = (user.role || "student").toLowerCase();
+            document.getElementById("mode-student").checked = (role === "student");
+            document.getElementById("mode-employee").checked = (role === "employee");
+        }
+
+        function switchToViewMode() {
+            editModeDiv.style.display = "none";
+            viewModeDiv.style.display = "block";
+        }
+
+        function switchToEditMode() {
+            if (currentUser) populateEditForm(currentUser);
+            viewModeDiv.style.display = "none";
+            editModeDiv.style.display = "block";
+        }
+
+        enterEditBtn.addEventListener("click", switchToEditMode);
+
+        cancelEditBtn.addEventListener("click", function () {
+            if (currentUser && currentUser.isNewUser) {
+                showAlert("Please complete your profile information to proceed.", "warning");
+                return;
+            }
+            switchToViewMode();
+        });
+
+        // Form Submit -> Save Profile
+        editForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const fname = document.getElementById("input-fname").value.trim();
+            const lname = document.getElementById("input-lname").value.trim();
+            const contact = document.getElementById("input-contact").value.trim();
+            const ageVal = parseInt(document.getElementById("input-age").value);
+            const genderVal = document.getElementById("select-gender").value;
+            const modeVal = document.querySelector('input[name="input-mode"]:checked')?.value || "student";
+
+            if (!fname || !lname) {
+                showAlert("First name and Last name are required.", "danger");
+                return;
+            }
+            if (!/^[0-9]{10}$/.test(contact)) {
+                showAlert("Please enter a valid 10-digit contact number.", "danger");
+                return;
+            }
+            if (isNaN(ageVal) || ageVal < 10) {
+                showAlert("Age must be a valid number (10 or older).", "danger");
+                return;
+            }
+            if (!genderVal) {
+                showAlert("Please select a gender.", "danger");
+                return;
+            }
+
+            const payload = {
+                user_id: userId,
+                first_name: fname,
+                last_name: lname,
+                contact: contact,
+                age: ageVal,
+                gender: genderVal,
+                mode: modeVal
             };
 
-            localStorage.setItem(profileKey, JSON.stringify(localProfile));
-            localStorage.setItem("mode", payload.mode);
-            localStorage.setItem("first_name", payload.first_name);
+            // Loading state
+            saveBtn.disabled = true;
+            saveSpinner.classList.remove("d-none");
+            saveIcon.classList.add("d-none");
 
-            fillProfile(localProfile);
-            disableInputs();
-            alert("Profile saved successfully!");
-        } catch (err) {
-            console.error("Profile save error:", err);
-            alert("Error saving profile: " + err.message);
-        }
-    });
+            try {
+                const res = await fetch(`${BASE_URL}/profile`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
 
-    // Edit profile
-    editBtn.addEventListener("click", function (e) {
-        e.preventDefault();
-        enableInputs();
-    });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.error || "Failed to save profile on server.");
 
-    // Logout
-    if (signoutBtn) {
-        signoutBtn.addEventListener("click", function () {
-            localStorage.clear();
-            window.location.href = "signin.html";
+                // Re-fetch profile & update navbar dynamically
+                currentUser = await window.loadCurrentUser(true);
+                renderViewMode(currentUser);
+
+                showAlert("Profile saved successfully in MongoDB!", "success");
+                switchToViewMode();
+            } catch (err) {
+                console.error("Save profile error:", err);
+                showAlert("Error saving profile: " + err.message, "danger");
+            } finally {
+                saveBtn.disabled = false;
+                saveSpinner.classList.add("d-none");
+                saveIcon.classList.remove("d-none");
+            }
         });
-    }
 
-    // Fill profile fields
-    function fillProfile(profile) {
-        fnameInput.value = profile.fname || "";
-        lnameInput.value = profile.lname || "";
-        contactInput.value = profile.contact || "";
-        ageInput.value = profile.age || "";
-        genderSelect.value = profile.gender || "";
-
-        for (let r of modeRadios) {
-            r.checked = (r.value === profile.mode);
-        }
-    }
-
-    // Disable inputs after saving
-    function disableInputs() {
-        fnameInput.disabled = true;
-        lnameInput.disabled = true;
-        contactInput.disabled = true;
-        ageInput.disabled = true;
-        genderSelect.disabled = true;
-        saveBtn.disabled = true;
-
-        for (let r of modeRadios) {
-            r.disabled = true;
-        }
-    }
-
-    // Enable inputs when editing
-    function enableInputs() {
-        fnameInput.disabled = false;
-        lnameInput.disabled = false;
-        contactInput.disabled = false;
-        ageInput.disabled = false;
-        genderSelect.disabled = false;
-        saveBtn.disabled = false;
-
-        for (let r of modeRadios) {
-            r.disabled = false;
-        }
-    }
-});
-</script>
+        // Initialize
+        fetchProfile();
+    });
+    </script>
 </body>
 </html>

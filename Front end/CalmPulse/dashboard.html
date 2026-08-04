@@ -3,724 +3,739 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" type="text/css" href="post-login.css">
+    <title>Dashboard - CalmPulse</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" type="text/css" href="post-login.css">
+    <style>
+        .dashboard-container {
+            max-width: 1050px;
+            margin: 0 auto;
+        }
+        .welcome-header {
+            color: #18310e;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid rgba(24, 49, 14, 0.12);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+        .stat-icon {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        .stat-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #556b57;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #18310e;
+            line-height: 1.1;
+        }
+        .check-stress-banner {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border: 1px solid #a5d6a7;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 6px 20px rgba(46, 125, 50, 0.1);
+        }
+        .skeleton-box {
+            display: inline-block;
+            height: 28px;
+            width: 70%;
+            background-color: #e0e0e0;
+            border-radius: 6px;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1.0; }
+            100% { opacity: 0.6; }
+        }
+        .voice-btn {
+            background: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            color: #2e7d32;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .voice-btn:hover {
+            background: #2e7d32;
+            color: #ffffff;
+        }
+    </style>
 </head>
 <body>
-<div id="preloader">
-<span class="loader"></span>
-</div> 
-<div id="main-content" style="display:none;">
+
     <div class="nav">
-        <img src="images/logo.png">
+        <img src="images/logo.png" alt="CalmPulse Logo">
         <div class="nav-right">
-            <div class="nav-content">
-                <h5> Welcome!</h5>
-                <button id="signout-btn">Sign Out</button>
-            </div>
+            <!-- Dynamic user dropdown rendered by auth-helper.js -->
         </div>
     </div>
+
     <div class="sidebar">
         <a class="active" href="dashboard.html"><i class="fa-solid fa-house"></i><br><p>Dashboard</p></a>
         <a href="profile.html"><i class="fa-solid fa-user"></i><p>Profile</p></a>
-        <a href="history.html"><i class="fa-solid fa-chart-line"></i> <p>History</p></a>
+        <a href="history.html"><i class="fa-solid fa-chart-line"></i><p>History</p></a>
         <a href="Info.html"><i class="fa-solid fa-circle-info"></i><p>Information Forum</p></a>
         <a href="chat.html"><i class="fa-solid fa-comment"></i><p>Pulse Bot</p></a>
     </div>
 
-    <div class="content1">
-        <h1 style="color:#18310e; font-size:2.2rem; margin:0 0 10px 0; width:85%; max-width:950px; text-align:left;">Welcome back, <span id="welcome-display-name">User</span>!</h1>
-        
-        <!-- DASHBOARD CARDS GRID -->
-        <div class="dashboard-grid">
-            <!-- Streak Card -->
-            <div class="dashboard-card" style="background: linear-gradient(135deg, #f4faf6, #e8f5e9); border: 1px solid #c8e6c9;">
-                <i class="fa-solid fa-fire" style="color: #ff9800;"></i>
-                <h3>Daily Streak</h3>
-                <p class="card-value" id="streak-count">0</p>
-                <span id="user-badge" style="font-size: 0.85rem; font-weight: bold; background: #c8e6c9; padding: 4px 10px; border-radius: 12px; margin-top: 8px; color: #2e7d32;">None</span>
+    <div class="content p-4">
+        <div class="dashboard-container">
+            <!-- Header greeting -->
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div>
+                    <h1 class="welcome-header mb-1">Welcome back, <span class="welcome-name">User</span> 👋</h1>
+                    <p class="text-muted mb-0">Track your daily mental balance and manage stress levels effortlessly.</p>
+                </div>
+                <div id="badge-display-container">
+                    <span class="badge bg-success-subtle text-success fs-6 px-3 py-2 border border-success-subtle rounded-pill" id="user-badge">
+                        <i class="fa-solid fa-award me-1"></i> None
+                    </span>
+                </div>
             </div>
-            
-            <!-- Total Predictions Card -->
-            <div class="dashboard-card">
-                <i class="fa-solid fa-clipboard-list" style="color: #2196f3;"></i>
-                <h3>Total Predictions</h3>
-                <p class="card-value" id="total-predictions">0</p>
-            </div>
-            
-            <!-- Stress Level Card -->
-            <div class="dashboard-card">
-                <i class="fa-solid fa-gauge-high" style="color: #f44336;"></i>
-                <h3>Stress Level</h3>
-                <p class="card-value" id="latest-stress">N/A</p>
-            </div>
-            
-            <!-- Mood/Anxiety Card -->
-            <div class="dashboard-card">
-                <i class="fa-solid fa-face-smile" style="color: #9c27b0;"></i>
-                <h3>Anxiety Level</h3>
-                <p class="card-value" id="latest-anxiety">N/A</p>
-            </div>
-        </div>
 
-        <!-- Check Stress Trigger Button Card -->
-        <div class="check-stress-section" id="check-stress-section" style="width: 85%; max-width: 950px;">
-            <img src="images/checkstress-db.jpg" style="width:100%; max-width:400px;"><br>
-            <button class="check-stress-btn" id="check-stress-btn"> Check Stress Level</button>
-        </div>
+            <!-- Stats Grid -->
+            <div class="row g-3 mb-4">
+                <!-- Streak Card -->
+                <div class="col-6 col-md-3">
+                    <div class="stat-card h-100">
+                        <i class="fa-solid fa-fire stat-icon text-warning"></i>
+                        <div class="stat-title">Current Streak</div>
+                        <div class="stat-value" id="streak-count"><span class="skeleton-box"></span></div>
+                        <div class="small text-muted mt-2" id="streak-msg">Daily Check-ins</div>
+                    </div>
+                </div>
 
-        <!-- RECENT ACTIVITY CARD -->
-        <div class="activity-card" id="activity-card">
-            <h3>Recent Predictions</h3>
-            <div class="activity-list" id="activity-list">
-                <p style="color:#777; font-style:italic; margin:0;">No recent predictions found. Click "Check Stress Level" to start.</p>
+                <!-- Longest Streak -->
+                <div class="col-6 col-md-3">
+                    <div class="stat-card h-100">
+                        <i class="fa-solid fa-trophy stat-icon text-warning"></i>
+                        <div class="stat-title">Longest Streak</div>
+                        <div class="stat-value" id="longest-streak-count"><span class="skeleton-box"></span></div>
+                        <div class="small text-muted mt-2">All Time Record</div>
+                    </div>
+                </div>
+
+                <!-- Total Predictions -->
+                <div class="col-6 col-md-3">
+                    <div class="stat-card h-100">
+                        <i class="fa-solid fa-clipboard-check stat-icon text-primary"></i>
+                        <div class="stat-title">Total Assessments</div>
+                        <div class="stat-value" id="total-predictions"><span class="skeleton-box"></span></div>
+                        <div class="small text-muted mt-2">Completed Assessments</div>
+                    </div>
+                </div>
+
+                <!-- Latest Stress Level -->
+                <div class="col-6 col-md-3">
+                    <div class="stat-card h-100">
+                        <i class="fa-solid fa-heart-pulse stat-icon text-danger"></i>
+                        <div class="stat-title">Latest Stress</div>
+                        <div class="stat-value fs-3" id="latest-stress"><span class="skeleton-box"></span></div>
+                        <div class="small text-muted mt-2" id="latest-stress-badge">Score Rating</div>
+                    </div>
+                </div>
             </div>
-        </div>
-        
-        <!-- STUDENT FORM -->
-        <div class="student-form" id="student" style="display: none;">
-            <h2>Academic Stress Check-In</h2>
-            <form id="student-form">
-               <label for="anxiety_level">Anxiety Level (1-25):   <span id="anxiety_level_val">0</span></label>
-               <input type="range" min="0" max="25" value="0" id="anxiety_level">
-               <br><br>
-               <label for="depression">Depression Level (1-25):   <span id="depression_val">0</span></label>
-               <input type="range" min="0" max="25" value="0" id="depression">
-              <br><br>
-               <label for="sleep_quality">Sleep Quality (1-5):   <span id="sleep_quality_val">0</span></label>
-               <input type="range" min="0" max="5" value="0" id="sleep_quality">
-               <br><br>
-               <label for="academic_performance">Academic Performance (1-5):   <span id="academic_performance_val">0</span></label>
-               <input type="range" min="0" max="5" value="0" id="academic_performance">
-               <br><br>
-               <label for="study_load">Study Load (1-5):   <span id="study_load_val">0</span></label>
-               <input type="range" min="0" max="5" value="0" id="study_load">
-              <br><br>
-               <label for="teacher_student_relationship">Teacher-Student Relationship (1-5):   <span id="teacher_student_relationship_val">0</span></label>
-               <input type="range" min="0" max="5" value="0" id="teacher_student_relationship">
-               <br><br>
-               <label for="future_career_concerns">Career Concerns (1-5):   <span id="future_career_concerns_val">0</span></label>
-               <input type="range" min="0" max="5" value="0" id="future_career_concerns">
-               <br><br>
-               <label for="social_support">Social Support (1-5):   <span id="social_support_val">0</span></label>
-               <input type="range" min="0" max="5" value="0" id="social_support">
-               <br><br>
-               <label for="peer_pressure">Peer Pressure (1-5):   <span id="peer_pressure_val">0</span></label>
-               <input type="range" min="0" max="5" value="0" id="peer_pressure">
-               <br><br>
-               <label for="extracurricular_load">Extracurricular Load (1-5):   <span id="extracurricular_load_val">0</span></label>
-               <input type="range" min="0" max="5" value="0" id="extracurricular_load">
-               <br><br>
-               <button type="submit" class="inputs-submitbtn" id="student-submit-btn">Done</button><br><br>
-            </form>
-        </div>
 
-        <!-- EMPLOYEE FORM -->
-        <div class="employee" id="employee" style="display: none;">
-            <h2>Workplace Stress Check-In</h2>
-            <form id="employee-form">
-                <label for="job_role">Job Role</label>
-                <input type="text" required placeholder="Job Role" id="job_role"><br><br>
-                <label for="working_hours">Working Hours:  <span id="working_hours_val">0</span></label>
-                <input type="range" min="0" max="24" value="0" id="working_hours"><br><br>
-                <label for="virtual_meetings">Virtual Meetings:  <span id="virtual_meetings_val">0</span></label>
-                <input type="range" min="0" max="10" value="0" id="virtual_meetings"><br><br>
-                <label for="work_life_balance">Work-Life Balance Rating (1-5):  <span id="work_life_balance_val">0</span></label>
-                <input type="range" min="0" max="5" value="0" id="work_life_balance"><br><br>
-                <label for="access_to_mental_health">Access to mental health resources</label>
-                <div class="radio-group">
-                    <label><input type="radio" name="access_to_mental_health" value="yes" required>Yes</label>
-                    <label><input type="radio" name="access_to_mental_health" value="no" required>No</label>
-                </div><br><br>
-                <label for="satisfaction_with_remote_work">Remote Work Satisfaction</label>
-                <div class="radio-group">
-                    <label><input type="radio" name="satisfaction_with_remote_work" value="satisfied" required>Satisfied</label>
-                    <label><input type="radio" name="satisfaction_with_remote_work" value="unsatisfied" required>Unsatisfied</label>
-                </div><br><br>
-                <label for="company_support">Company Support for remote work (1-5):  <span id="company_support_val">0</span></label>
-                <input type="range" min="0" max="5" value="0" id="company_support"><br><br>
-                <label for="physical_activity">Physical Activity</label>
-                <div class="radio-group">
-                    <label><input type="radio" name="physical_activity" value="none" required>None</label>
-                    <label><input type="radio" name="physical_activity" value="daily" required>Daily</label>
-                    <label><input type="radio" name="physical_activity" value="weekly" required>Weekly</label>
-                </div><br><br>
-                <label for="sleep_quality">Sleep Quality</label>
-                <div class="radio-group">
-                    <label><input type="radio" name="sleep_quality" value="poor" required>Poor</label>
-                    <label><input type="radio" name="sleep_quality" value="average" required>Average</label>
-                    <label><input type="radio" name="sleep_quality" value="good" required>Good</label>
-                </div><br><br>
-                <button type="submit" class="inputs-submitbtn" id="employee-submit-btn">Done</button><br><br>
-            </form>
-        </div>
+            <!-- Check Stress Banner -->
+            <div class="check-stress-banner mb-4 text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between gap-3" id="check-stress-section">
+                <div>
+                    <h3 class="fw-bold text-success mb-2"><i class="fa-solid fa-stethoscope me-2"></i>Daily Stress Check-In</h3>
+                    <p class="text-dark mb-0">Answer a few quick questions to assess your stress levels and receive instant personalized tips.</p>
+                </div>
+                <button class="btn btn-success btn-lg px-4 py-2 fw-bold shadow-sm" id="check-stress-btn">
+                    <i class="fa-solid fa-circle-play me-2"></i>Check Stress Level
+                </button>
+            </div>
 
-        <div class="display-stress" id="display-stress" style="display: none;">
-            <h1> Your stress score is</h1>
-            <h4>Tips</h4>
-            <button class="go-back" id="go-back-btn">Go Back</button>
+            <!-- STUDENT CHECK-IN FORM -->
+            <div class="card shadow-sm border-0 mb-4 p-4" id="student" style="display: none; background: #ffffff;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="fw-bold text-success mb-0"><i class="fa-solid fa-graduation-cap me-2"></i>Academic Stress Check-In (Student)</h3>
+                    <button type="button" class="btn-close cancel-checkin-btn" aria-label="Close"></button>
+                </div>
+                <form id="student-form">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Anxiety Level (0-25): <span class="badge bg-success" id="anxiety_level_val">0</span></label>
+                            <input type="range" class="form-range" min="0" max="25" value="0" id="anxiety_level">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Depression Score (0-25): <span class="badge bg-success" id="depression_val">0</span></label>
+                            <input type="range" class="form-range" min="0" max="25" value="0" id="depression">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Sleep Quality (1-5): <span class="badge bg-success" id="sleep_quality_val">3</span></label>
+                            <input type="range" class="form-range" min="1" max="5" value="3" id="sleep_quality">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Academic Performance (1-5): <span class="badge bg-success" id="academic_performance_val">3</span></label>
+                            <input type="range" class="form-range" min="1" max="5" value="3" id="academic_performance">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Study Load (1-5): <span class="badge bg-success" id="study_load_val">3</span></label>
+                            <input type="range" class="form-range" min="1" max="5" value="3" id="study_load">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Teacher-Student Relationship (1-5): <span class="badge bg-success" id="teacher_student_relationship_val">3</span></label>
+                            <input type="range" class="form-range" min="1" max="5" value="3" id="teacher_student_relationship">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Career Concerns (1-5): <span class="badge bg-success" id="future_career_concerns_val">3</span></label>
+                            <input type="range" class="form-range" min="1" max="5" value="3" id="future_career_concerns">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Social Support (1-5): <span class="badge bg-success" id="social_support_val">3</span></label>
+                            <input type="range" class="form-range" min="1" max="5" value="3" id="social_support">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Peer Pressure (1-5): <span class="badge bg-success" id="peer_pressure_val">3</span></label>
+                            <input type="range" class="form-range" min="1" max="5" value="3" id="peer_pressure">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Extracurricular Load (1-5): <span class="badge bg-success" id="extracurricular_load_val">3</span></label>
+                            <input type="range" class="form-range" min="1" max="5" value="3" id="extracurricular_load">
+                        </div>
+                    </div>
+                    <div class="mt-4 text-end">
+                        <button type="button" class="btn btn-outline-secondary me-2 cancel-checkin-btn">Cancel</button>
+                        <button type="submit" class="btn btn-success px-4" id="student-submit-btn">
+                            <span class="spinner-border spinner-border-sm me-2 d-none" id="student-spinner"></span>
+                            Submit Check-In
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- EMPLOYEE CHECK-IN FORM -->
+            <div class="card shadow-sm border-0 mb-4 p-4" id="employee" style="display: none; background: #ffffff;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="fw-bold text-success mb-0"><i class="fa-solid fa-briefcase me-2"></i>Workplace Stress Check-In (Employee)</h3>
+                    <button type="button" class="btn-close cancel-checkin-btn" aria-label="Close"></button>
+                </div>
+                <form id="employee-form">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="job_role" class="form-label fw-semibold">Job Role</label>
+                            <input type="text" class="form-control" id="job_role" required placeholder="e.g. Software Engineer">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Daily Working Hours (0-24): <span class="badge bg-success" id="working_hours_val">8</span></label>
+                            <input type="range" class="form-range" min="0" max="24" value="8" id="working_hours">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Virtual Meetings Count (0-10): <span class="badge bg-success" id="virtual_meetings_val">3</span></label>
+                            <input type="range" class="form-range" min="0" max="10" value="3" id="virtual_meetings">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Work-Life Balance Rating (1-5): <span class="badge bg-success" id="work_life_balance_val">3</span></label>
+                            <input type="range" class="form-range" min="1" max="5" value="3" id="work_life_balance">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Mental Health Resource Access</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="access_to_mental_health" value="yes" id="mh-yes" required>
+                                    <label class="form-check-label" for="mh-yes">Yes</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="access_to_mental_health" value="no" id="mh-no" required>
+                                    <label class="form-check-label" for="mh-no">No</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Remote Work Satisfaction</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="satisfaction_with_remote_work" value="satisfied" id="rw-sat" required>
+                                    <label class="form-check-label" for="rw-sat">Satisfied</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="satisfaction_with_remote_work" value="unsatisfied" id="rw-unsat" required>
+                                    <label class="form-check-label" for="rw-unsat">Unsatisfied</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Company Support (1-5): <span class="badge bg-success" id="company_support_val">3</span></label>
+                            <input type="range" class="form-range" min="1" max="5" value="3" id="company_support">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Physical Activity Level</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="physical_activity" value="none" id="pa-none" required>
+                                    <label class="form-check-label" for="pa-none">None</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="physical_activity" value="weekly" id="pa-weekly" required>
+                                    <label class="form-check-label" for="pa-weekly">Weekly</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="physical_activity" value="daily" id="pa-daily" required>
+                                    <label class="form-check-label" for="pa-daily">Daily</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Sleep Quality Rating</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="sleep_quality" value="poor" id="sq-poor" required>
+                                    <label class="form-check-label" for="sq-poor">Poor</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="sleep_quality" value="average" id="sq-avg" required>
+                                    <label class="form-check-label" for="sq-avg">Average</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="sleep_quality" value="good" id="sq-good" required>
+                                    <label class="form-check-label" for="sq-good">Good</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-end">
+                        <button type="button" class="btn btn-outline-secondary me-2 cancel-checkin-btn">Cancel</button>
+                        <button type="submit" class="btn btn-success px-4" id="employee-submit-btn">
+                            <span class="spinner-border spinner-border-sm me-2 d-none" id="employee-spinner"></span>
+                            Submit Check-In
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- RESULT SCREEN -->
+            <div class="card shadow border-0 p-4 mb-4 text-center" id="display-stress" style="display: none; background: #ffffff;">
+                <div class="mb-3">
+                    <span class="badge px-4 py-2 fs-5" id="result-badge">Low Stress</span>
+                </div>
+                <h2 class="fw-bold mb-3" id="result-score-heading" style="color: #18310e;">Your stress score is 0.00</h2>
+                <div class="alert alert-success text-start max-width-600 mx-auto p-4 mb-4" id="result-tips-box">
+                    <h5 class="fw-bold mb-2"><i class="fa-solid fa-lightbulb me-2 text-warning"></i>Personalized Recommendations:</h5>
+                    <div id="result-tips-content">Keep up the great work!</div>
+                </div>
+                <div>
+                    <button class="btn btn-outline-success px-4 fw-bold" id="go-back-btn">
+                        <i class="fa-solid fa-arrow-left me-2"></i>Return to Dashboard
+                    </button>
+                </div>
+            </div>
+
+            <!-- RECENT ACTIVITY CARD -->
+            <div class="card border-0 shadow-sm p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="fw-bold mb-0" style="color: #18310e;"><i class="fa-solid fa-clock-rotate-left me-2 text-success"></i>Recent Predictions</h4>
+                    <a href="history.html" class="btn btn-sm btn-outline-success">View All History</a>
+                </div>
+                <div class="list-group list-group-flush" id="activity-list">
+                    <div class="text-center py-4 text-muted">
+                        <i class="fa-solid fa-spinner fa-spin fs-3 mb-2"></i>
+                        <p class="mb-0">Loading recent predictions...</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<script src="api-config.js"></script>
-<script src="auth-helper.js"></script>
-<script>
-// -------------------- PRELOADER --------------------
-window.addEventListener("load", function () {
-    const minTime = 2000;
-    const preloader = document.getElementById("preloader");
-    const mainContent = document.getElementById("main-content");
+    <!-- FIRST-TIME USER PROFILE COMPLETION MODAL -->
+    <div class="modal fade" id="profileCompletionModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold" id="modalLabel"><i class="fa-solid fa-user-plus me-2"></i>Complete Your Profile</h5>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted small mb-3">Please provide your details once to personalize your stress assessment experience.</p>
+                    <form id="modal-profile-form">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label for="modal-fname" class="form-label fw-semibold">First Name</label>
+                                <input type="text" class="form-control" id="modal-fname" required placeholder="First name">
+                            </div>
+                            <div class="col-6">
+                                <label for="modal-lname" class="form-label fw-semibold">Last Name</label>
+                                <input type="text" class="form-control" id="modal-lname" required placeholder="Last name">
+                            </div>
+                            <div class="col-12">
+                                <label for="modal-contact" class="form-label fw-semibold">Contact Number</label>
+                                <input type="tel" class="form-control" id="modal-contact" required placeholder="10-digit mobile number" pattern="^[0-9]{10}$">
+                            </div>
+                            <div class="col-6">
+                                <label for="modal-age" class="form-label fw-semibold">Age</label>
+                                <input type="number" class="form-control" id="modal-age" required min="10" max="120" placeholder="Age">
+                            </div>
+                            <div class="col-6">
+                                <label for="modal-gender" class="form-label fw-semibold">Gender</label>
+                                <select class="form-select" id="modal-gender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Role Mode</label>
+                                <div class="d-flex gap-4 p-2 bg-light rounded border">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="modal-mode" id="m-student" value="student" required checked>
+                                        <label class="form-check-label" for="m-student">Student</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="modal-mode" id="m-employee" value="employee" required>
+                                        <label class="form-check-label" for="m-employee">Employee</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-success w-100 py-2 fw-bold" id="modal-submit-btn">
+                                <span class="spinner-border spinner-border-sm me-2 d-none" id="modal-spinner"></span>
+                                Save & Continue
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    setTimeout(() => {
-        preloader.style.opacity = "0";
-        setTimeout(() => {
-            preloader.style.display = "none";
-            mainContent.style.display = "block";
-        }, 800);
-    }, minTime);
-});
-
-// ===================== MAIN SCRIPT MERGED =====================
-document.addEventListener("DOMContentLoaded", function () {
-
-    const BASE_URL = window.getApiBaseUrl();
-
-    // ------------ USER INFO ------------
-    const userId = localStorage.getItem("user_id");
-    const userRole = localStorage.getItem("mode");
-    const storedName = localStorage.getItem("name") || "User";
-
-    // Correct Welcome message
-    const welcomeEl = document.querySelector(".nav-content h5");
-    if (welcomeEl) welcomeEl.textContent = `Welcome, ${storedName}!`;
-
-    // Only warn if user_id missing
-    if (!userId) {
-        alert("Please sign in first.");
-    }
-
-    // ------------ DOM ELEMENTS ------------
-    const checkStressBtn = document.getElementById("check-stress-btn");
-    const checkStressSection = document.getElementById("check-stress-section");
-
-    const studentFormWrapper = document.getElementById("student");
-    const employeeFormWrapper = document.getElementById("employee");
-
-    const studentForm = document.getElementById("student-form");
-    const employeeForm = document.getElementById("employee-form");
-
-    const displayStress = document.getElementById("display-stress");
-    const goBackBtn = document.getElementById("go-back-btn");
-
-    const signOutBtn = document.getElementById("signout-btn");
-
-    // ------------ STRESS CHECK BUTTON ------------
-    checkStressBtn.addEventListener("click", () => {
-        checkStressSection.style.display = "none";
-
-        if (userRole === "student") {
-            studentFormWrapper.style.display = "block";
-            employeeFormWrapper.style.display = "none";
-        } else {
-            employeeFormWrapper.style.display = "block";
-            studentFormWrapper.style.display = "none";
-        }
-    });
-
-    // ------------ SLIDER VALUE UPDATER ------------
-    const sliders = document.querySelectorAll("input[type='range']");
-    sliders.forEach(slider => {
-        const span = document.getElementById(slider.id + "_val");
-        if (span) span.textContent = slider.value;
-
-        slider.addEventListener("input", () => {
-            if (span) span.textContent = slider.value;
-        });
-    });
-
-    // Helper for radio
-    const getRadioValue = (name) => {
-        const r = document.querySelector(`input[name="${name}"]:checked`);
-        return r ? r.value : null;
-    };
-
-    // --------------- STUDENT SUBMIT ---------------
-    studentForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const payload = {
-            user_id: userId,
-            role: "student",
-            anxiety_level: Number(anxiety_level.value),
-            depression: Number(depression.value),
-            sleep_quality: Number(sleep_quality.value),
-            academic_performance: Number(academic_performance.value),
-            study_load: Number(study_load.value),
-            teacher_student_relationship: Number(teacher_student_relationship.value),
-            future_career_concerns: Number(future_career_concerns.value),
-            social_support: Number(social_support.value),
-            peer_pressure: Number(peer_pressure.value),
-            extracurricular_load: Number(extracurricular_load.value)
-        };
-
-        try {
-            const res = await fetch(`${BASE_URL}/predict`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) throw new Error(data.error || "Prediction failed on server.");
-            showStressResult(data.stress_score, data.suggestions);
-        } catch (err) {
-            alert("Error: " + err.message);
-        }
-    });
-
-    // --------------- EMPLOYEE SUBMIT ---------------
-    employeeForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const payload = {
-            user_id: userId,
-            role: "employee",
-            job_role: job_role.value,
-            working_hours: Number(working_hours.value),
-            virtual_meetings: Number(virtual_meetings.value),
-            work_life_balance: Number(work_life_balance.value),
-            access_to_mental_health: getRadioValue("access_to_mental_health"),
-            satisfaction_with_remote_work: getRadioValue("satisfaction_with_remote_work"),
-            company_support: Number(company_support.value),
-            physical_activity: getRadioValue("physical_activity"),
-            sleep_quality: getRadioValue("sleep_quality")
-        };
-
-        try {
-            const res = await fetch(`${BASE_URL}/predict`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) throw new Error(data.error || "Prediction failed on server.");
-            showStressResult(data.stress_score, data.suggestions);
-        } catch (err) {
-            alert("Error: " + err.message);
-        }
-    });
-
-    // ------------------ SHOW RESULT ------------------
-    function showStressResult(score, suggestions) {
-        studentFormWrapper.style.display = "none";
-        employeeFormWrapper.style.display = "none";
-        checkStressSection.style.display = "none";
-        displayStress.style.display = "block";
-
-        displayStress.querySelector("h1").innerHTML =
-            `Your stress score is <strong>${score.toFixed(2)}</strong>`;
-
-        let tipBox = displayStress.querySelector("h4");
-
-        if (Array.isArray(suggestions)) {
-            tipBox.innerHTML = "<strong>Tips:</strong><br>" + suggestions.join("<br>");
-        } else {
-            tipBox.innerHTML = "<strong>Tips:</strong><br>" + suggestions;
-        }
-    }
-
-    // ------------------ GO BACK ------------------
-    goBackBtn.addEventListener("click", () => {
-        displayStress.style.display = "none";
-        checkStressSection.style.display = "block";
-    });
-
-    // ------------------ SIGN OUT ------------------
-    if (signOutBtn) {
-        signOutBtn.addEventListener("click", () => {
-            localStorage.clear();
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="api-config.js"></script>
+    <script src="auth-helper.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", async function () {
+        const userId = localStorage.getItem("user_id");
+        if (!userId) {
             window.location.href = "signin.html";
-        });
-    }
-
-    // ------------------ VOICE INPUT ------------------
-    let recognition;
-    let micStream;
-
-    async function initMicrophone() {
-        try {
-            micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            return true;
-        } catch (err) {
-            alert("Microphone access denied");
-            return false;
-        }
-    }
-
-    async function startVoiceInput(inputId) {
-        const ok = await initMicrophone();
-        if (!ok) return;
-
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.lang = "en-US";
-
-        const input = document.getElementById(inputId);
-
-        recognition.onresult = (event) => {
-            let txt = event.results[0][0].transcript.trim();
-
-            if (input.type === "range") {
-                let num = parseFloat(txt);
-                if (!isNaN(num)) {
-                    num = Math.min(Math.max(num, input.min), input.max);
-                    input.value = num;
-                }
-            } else {
-                input.value = txt;
-            }
-
-            const span = document.getElementById(inputId + "_val");
-            if (span) span.textContent = input.value;
-        };
-
-        recognition.start();
-    }
-
-    // Add mic buttons safely
-    const voiceInputs = document.querySelectorAll("input[type='text'], input[type='range']");
-    voiceInputs.forEach(inp => {
-        const wrapper = document.createElement("div");
-        wrapper.style.display = "flex";
-        wrapper.style.alignItems = "center";
-        wrapper.style.gap = "6px";
-
-        inp.parentNode.insertBefore(wrapper, inp);
-        wrapper.appendChild(inp);
-
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "voice-btn";
-        btn.innerHTML = "<i class='fa-solid fa-microphone'></i>";
-        btn.onclick = () => startVoiceInput(inp.id);
-
-        wrapper.appendChild(btn);
-    });
-
-    // ---------------- LOAD STREAK + BADGE ----------------
-    async function loadUserInfo() {
-        if (!userId) return;
-
-        const countEl = document.getElementById("streak-count");
-        const badgeEl = document.getElementById("user-badge");
-        const msgEl = document.getElementById("streak-msg");
-
-        // Use cached stats if synced in this session
-        if (sessionStorage.getItem("stats_synced") === "true") {
-            const streakVal = localStorage.getItem("streak") || 0;
-            const badgeVal = localStorage.getItem("badge") || "None";
-            
-            if (countEl) countEl.textContent = streakVal;
-            if (badgeEl) badgeEl.textContent = badgeVal;
-            if (msgEl) {
-                let s = parseInt(streakVal);
-                if (s === 0)
-                    msgEl.textContent = "Complete today's test to start a streak.";
-                else if (s === 1)
-                    msgEl.textContent = "Nice — you completed today's test!";
-                else
-                    msgEl.textContent = `Great! You are on a ${s}-day streak.`;
-            }
             return;
         }
 
-        if (countEl && badgeEl) {
-            countEl.innerHTML = '<span class="skeleton-box" style="display:inline-block; width:40px; height:30px;"></span>';
-            badgeEl.innerHTML = '<span class="skeleton-box" style="display:inline-block; width:80px; height:15px;"></span>';
-        }
+        const BASE_URL = window.getApiBaseUrl();
 
-        try {
-            const res = await fetch(`${BASE_URL}/user/${userId}/info`);
-            if (!res.ok) throw new Error("Could not contact stats service.");
+        // DOM elements
+        const checkStressBtn = document.getElementById("check-stress-btn");
+        const checkStressSection = document.getElementById("check-stress-section");
+        const studentWrapper = document.getElementById("student");
+        const employeeWrapper = document.getElementById("employee");
+        const displayStress = document.getElementById("display-stress");
+        const goBackBtn = document.getElementById("go-back-btn");
 
-            const data = await res.json();
-            const s = data.streak || 0;
-            const b = data.badge || "None";
+        let currentUser = await window.loadCurrentUser();
 
-            localStorage.setItem("streak", s);
-            localStorage.setItem("badge", b);
-            sessionStorage.setItem("stats_synced", "true");
+        // Check if profile incomplete -> show completion modal
+        if (currentUser && (currentUser.isNewUser || !currentUser.age || !currentUser.gender)) {
+            const modalEl = document.getElementById("profileCompletionModal");
+            const modal = new bootstrap.Modal(modalEl, { backdrop: "static", keyboard: false });
+            
+            // Populate defaults if any exist
+            document.getElementById("modal-fname").value = currentUser.firstName || "";
+            document.getElementById("modal-lname").value = currentUser.lastName || "";
+            document.getElementById("modal-contact").value = currentUser.contact || "";
 
-            if (countEl) countEl.textContent = s;
-            if (badgeEl) badgeEl.textContent = b;
+            modal.show();
 
-            if (msgEl) {
-                if (s === 0)
-                    msgEl.textContent = "Complete today's test to start a streak.";
-                else if (s === 1)
-                    msgEl.textContent = "Nice — you completed today's test!";
-                else
-                    msgEl.textContent = `Great! You are on a ${s}-day streak.`;
-            }
+            const modalForm = document.getElementById("modal-profile-form");
+            modalForm.addEventListener("submit", async function(e) {
+                e.preventDefault();
 
-        } catch (err) {
-            console.error("Error loading streak", err);
-            if (countEl) countEl.textContent = "--";
-            if (badgeEl) badgeEl.textContent = "Error";
-            if (msgEl) msgEl.textContent = "Failed to load streak stats. Please refresh the page.";
-        }
-    }
+                const fname = document.getElementById("modal-fname").value.trim();
+                const lname = document.getElementById("modal-lname").value.trim();
+                const contact = document.getElementById("modal-contact").value.trim();
+                const age = parseInt(document.getElementById("modal-age").value);
+                const gender = document.getElementById("modal-gender").value;
+                const mode = document.querySelector('input[name="modal-mode"]:checked')?.value || "student";
 
-    // ---------------- PROFILE POPUP LOGIC ----------------
-    function showProfilePopup() {
-        const overlay = document.getElementById("profile-modal-overlay");
-        if (overlay) {
-            overlay.classList.add("show");
+                const submitBtn = document.getElementById("modal-submit-btn");
+                const spinner = document.getElementById("modal-spinner");
 
-            const closeBtn = document.getElementById("modal-close-btn");
-            if (closeBtn) {
-                closeBtn.onclick = () => {
-                    overlay.classList.remove("show");
-                    sessionStorage.setItem("profile_popup_shown", "true");
-                };
-            }
+                submitBtn.disabled = true;
+                spinner.classList.remove("d-none");
 
-            const form = document.getElementById("modal-profile-form");
-            if (form) {
-                form.onsubmit = async (e) => {
-                    e.preventDefault();
-
-                    const fname = document.getElementById("modal-fname").value.trim();
-                    const lname = document.getElementById("modal-lname").value.trim();
-                    const contact = document.getElementById("modal-contact").value.trim();
-                    const age = parseInt(document.getElementById("modal-age").value);
-                    
-                    let selectedMode = "";
-                    const modeRadios = document.getElementsByName("modal-mode");
-                    for (let r of modeRadios) {
-                        if (r.checked) selectedMode = r.value;
-                    }
-
-                    if (!fname || !lname) {
-                        alert("First and last name are required.");
-                        return;
-                    }
-                    if (!/^[0-9]{10}$/.test(contact)) {
-                        alert("Enter a valid 10-digit contact number.");
-                        return;
-                    }
-                    if (isNaN(age) || age < 10) {
-                        alert("Age must be 10 or older.");
-                        return;
-                    }
-
-                    const payload = {
-                        user_id: userId,
-                        first_name: fname,
-                        last_name: lname,
-                        contact: contact,
-                        age: age,
-                        gender: document.getElementById("modal-gender").value,
-                        mode: selectedMode
-                    };
-
-                    try {
-                        const res = await fetch(`${BASE_URL}/profile`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(payload)
-                        });
-
-                        const data = await res.json().catch(() => ({}));
-                        if (!res.ok) throw new Error(data.error || "Failed to save profile.");
-
-                        localStorage.setItem("is_new_user", "false");
-                        localStorage.setItem("mode", payload.mode);
-                        localStorage.setItem("first_name", payload.first_name);
-                        localStorage.setItem("last_name", payload.last_name);
-
-                        const triggerName = document.getElementById("nav-username");
-                        if (triggerName) triggerName.textContent = payload.first_name + " " + payload.last_name;
-                        const triggerAvatar = document.getElementById("nav-avatar");
-                        if (triggerAvatar) triggerAvatar.textContent = payload.first_name.charAt(0).toUpperCase();
-
-                        const welcomeEl = document.querySelector(".nav-content h5");
-                        if (welcomeEl) welcomeEl.textContent = `Welcome, ${payload.first_name + " " + payload.last_name}!`;
-
-                        overlay.classList.remove("show");
-                        alert("Profile completed successfully!");
-                    } catch (err) {
-                        alert("Error: " + err.message);
-                    }
-                };
-            }
-        }
-    }
-
-    function checkProfileCompletion() {
-        const isNewUser = localStorage.getItem("is_new_user");
-        if (isNewUser === "true" && sessionStorage.getItem("profile_popup_shown") !== "true") {
-            showProfilePopup();
-        }
-    }
-
-    // ---------------- LOAD ADDITIONAL DASHBOARD METRICS ----------------
-    async function loadDashboardMetrics() {
-        if (!userId) return;
-
-        const totalPredEl = document.getElementById("total-predictions");
-        const latestStressEl = document.getElementById("latest-stress");
-        const latestAnxietyEl = document.getElementById("latest-anxiety");
-        const activityListEl = document.getElementById("activity-list");
-
-        // Show skeletons initially
-        if (totalPredEl) totalPredEl.innerHTML = '<span class="skeleton-box" style="display:inline-block; width:50px; height:20px;"></span>';
-        if (latestStressEl) latestStressEl.innerHTML = '<span class="skeleton-box" style="display:inline-block; width:60px; height:20px;"></span>';
-        if (latestAnxietyEl) latestAnxietyEl.innerHTML = '<span class="skeleton-box" style="display:inline-block; width:60px; height:20px;"></span>';
-
-        try {
-            const res = await fetch(`${BASE_URL}/history/${userId}`);
-            if (!res.ok) throw new Error("Could not retrieve history.");
-
-            const data = await res.json();
-            if (!Array.isArray(data) || data.length === 0) {
-                if (totalPredEl) totalPredEl.textContent = "0";
-                if (latestStressEl) latestStressEl.textContent = "N/A";
-                if (latestAnxietyEl) latestAnxietyEl.textContent = "N/A";
-                return;
-            }
-
-            // 1. Total Predictions
-            if (totalPredEl) totalPredEl.textContent = data.length;
-
-            // Sort data by timestamp descending for latest assessments
-            data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-            // 2. Latest Stress Level
-            const latest = data[0];
-            if (latestStressEl) {
-                const score = Number(latest.stress_score);
-                latestStressEl.textContent = isNaN(score) ? "N/A" : score.toFixed(1);
-            }
-
-            // 3. Latest Anxiety Level (Student checks anxiety_level directly, Employee maps satisfaction or defaults)
-            if (latestAnxietyEl) {
-                const factors = latest.factors || {};
-                if (factors.anxiety_level !== undefined) {
-                    latestAnxietyEl.textContent = factors.anxiety_level;
-                } else if (factors.work_life_balance !== undefined) {
-                    latestAnxietyEl.textContent = factors.work_life_balance + "/5";
-                } else {
-                    latestAnxietyEl.textContent = "N/A";
-                }
-            }
-
-            // 4. Render Recent Activity (up to 3 items)
-            if (activityListEl) {
-                activityListEl.innerHTML = "";
-                const itemsToShow = data.slice(0, 3);
-                itemsToShow.forEach(item => {
-                    const date = new Date(item.timestamp).toLocaleDateString(undefined, {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                try {
+                    const res = await fetch(`${BASE_URL}/profile`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            user_id: userId,
+                            first_name: fname,
+                            last_name: lname,
+                            contact: contact,
+                            age: age,
+                            gender: gender,
+                            mode: mode
+                        })
                     });
-                    const score = Number(item.stress_score) || 0;
-                    
-                    let badgeColor = "#ffe082"; // Yellow
-                    let textColor = "#b78103";
-                    let levelText = "Moderate";
-                    if (score < 3.5) {
-                        badgeColor = "#c8e6c9"; // Green
-                        textColor = "#2e7d32";
-                        levelText = "Low";
-                    } else if (score > 7.0) {
-                        badgeColor = "#ffcdd2"; // Red
-                        textColor = "#c62828";
-                        levelText = "High";
-                    }
+
+                    if (!res.ok) throw new Error("Failed to save profile");
+
+                    // Re-fetch profile and update navbar
+                    currentUser = await window.loadCurrentUser(true);
+                    modal.hide();
+                } catch (err) {
+                    alert("Error saving profile: " + err.message);
+                } finally {
+                    submitBtn.disabled = false;
+                    spinner.classList.add("d-none");
+                }
+            });
+        }
+
+        // Setup range sliders value badges
+        document.querySelectorAll("input[type='range']").forEach(slider => {
+            const span = document.getElementById(slider.id + "_val");
+            if (span) span.textContent = slider.value;
+
+            slider.addEventListener("input", () => {
+                if (span) span.textContent = slider.value;
+            });
+        });
+
+        // Trigger Stress Check-In Form
+        checkStressBtn.addEventListener("click", () => {
+            checkStressSection.style.display = "none";
+            const role = (currentUser && currentUser.role ? currentUser.role : localStorage.getItem("mode") || "student").toLowerCase();
+
+            if (role === "student") {
+                studentWrapper.style.display = "block";
+                employeeWrapper.style.display = "none";
+            } else {
+                employeeWrapper.style.display = "block";
+                studentWrapper.style.display = "none";
+            }
+        });
+
+        // Cancel buttons
+        document.querySelectorAll(".cancel-checkin-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                studentWrapper.style.display = "none";
+                employeeWrapper.style.display = "none";
+                checkStressSection.style.display = "flex";
+            });
+        });
+
+        // Student Form Submit
+        const studentForm = document.getElementById("student-form");
+        studentForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById("student-submit-btn");
+            const spinner = document.getElementById("student-spinner");
+
+            const payload = {
+                user_id: userId,
+                role: "student",
+                anxiety_level: Number(document.getElementById("anxiety_level").value),
+                depression: Number(document.getElementById("depression").value),
+                sleep_quality: Number(document.getElementById("sleep_quality").value),
+                academic_performance: Number(document.getElementById("academic_performance").value),
+                study_load: Number(document.getElementById("study_load").value),
+                teacher_student_relationship: Number(document.getElementById("teacher_student_relationship").value),
+                future_career_concerns: Number(document.getElementById("future_career_concerns").value),
+                social_support: Number(document.getElementById("social_support").value),
+                peer_pressure: Number(document.getElementById("peer_pressure").value),
+                extracurricular_load: Number(document.getElementById("extracurricular_load").value)
+            };
+
+            submitBtn.disabled = true;
+            spinner.classList.remove("d-none");
+
+            try {
+                const res = await fetch(`${BASE_URL}/predict`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.error || "Prediction request failed");
+
+                showPredictionResult(data.stress_score, data.suggestions, "student");
+                loadDashboardMetrics(); // Refresh stats
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                spinner.classList.add("d-none");
+            }
+        });
+
+        // Employee Form Submit
+        const employeeForm = document.getElementById("employee-form");
+        employeeForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById("employee-submit-btn");
+            const spinner = document.getElementById("employee-spinner");
+
+            const getRadio = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value;
+
+            const payload = {
+                user_id: userId,
+                role: "employee",
+                job_role: document.getElementById("job_role").value,
+                working_hours: Number(document.getElementById("working_hours").value),
+                virtual_meetings: Number(document.getElementById("virtual_meetings").value),
+                work_life_balance: Number(document.getElementById("work_life_balance").value),
+                access_to_mental_health: getRadio("access_to_mental_health"),
+                satisfaction_with_remote_work: getRadio("satisfaction_with_remote_work"),
+                company_support: Number(document.getElementById("company_support").value),
+                physical_activity: getRadio("physical_activity"),
+                sleep_quality: getRadio("sleep_quality")
+            };
+
+            submitBtn.disabled = true;
+            spinner.classList.remove("d-none");
+
+            try {
+                const res = await fetch(`${BASE_URL}/predict`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.error || "Prediction request failed");
+
+                showPredictionResult(data.stress_score, data.suggestions, "employee");
+                loadDashboardMetrics(); // Refresh stats
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                spinner.classList.add("d-none");
+            }
+        });
+
+        function showPredictionResult(score, suggestions, role) {
+            studentWrapper.style.display = "none";
+            employeeWrapper.style.display = "none";
+            checkStressSection.style.display = "none";
+            displayStress.style.display = "block";
+
+            const mapping = window.mapPredictionScore(score, role);
+            const scoreHeading = document.getElementById("result-score-heading");
+            const badgeEl = document.getElementById("result-badge");
+
+            scoreHeading.textContent = `Your Stress Score is ${Number(score).toFixed(2)}`;
+            badgeEl.className = `badge px-4 py-2 fs-5 ${mapping.badgeClass}`;
+            badgeEl.textContent = `${mapping.label} Stress`;
+
+            const tipsContent = document.getElementById("result-tips-content");
+            if (Array.isArray(suggestions)) {
+                tipsContent.innerHTML = "<ul class='mb-0 ps-3'>" + suggestions.map(s => `<li>${s}</li>`).join("") + "</ul>";
+            } else {
+                tipsContent.textContent = suggestions || "No specific tips available.";
+            }
+        }
+
+        goBackBtn.addEventListener("click", () => {
+            displayStress.style.display = "none";
+            checkStressSection.style.display = "flex";
+        });
+
+        // Load Dashboard Metrics (Streak, Total Predictions, Latest Stress Score, Recent Predictions)
+        async function loadDashboardMetrics() {
+            const streakCountEl = document.getElementById("streak-count");
+            const longestStreakEl = document.getElementById("longest-streak-count");
+            const badgeEl = document.getElementById("user-badge");
+            const totalPredEl = document.getElementById("total-predictions");
+            const latestStressEl = document.getElementById("latest-stress");
+            const latestBadgeEl = document.getElementById("latest-stress-badge");
+            const activityListEl = document.getElementById("activity-list");
+
+            // Update user streak & badge from currentUser
+            if (currentUser) {
+                streakCountEl.textContent = currentUser.streak !== undefined ? currentUser.streak : 0;
+                longestStreakEl.textContent = currentUser.longestStreak !== undefined ? currentUser.longestStreak : 0;
+                if (badgeEl) badgeEl.innerHTML = `<i class="fa-solid fa-award me-1"></i> ${currentUser.badge || 'None'}`;
+            }
+
+            try {
+                const res = await fetch(`${BASE_URL}/history/${userId}`);
+                if (!res.ok) throw new Error("Could not load history");
+
+                const history = await res.json();
+                if (!Array.isArray(history) || history.length === 0) {
+                    totalPredEl.textContent = "0";
+                    latestStressEl.textContent = "N/A";
+                    latestBadgeEl.textContent = "No checks yet";
+                    activityListEl.innerHTML = `<div class="text-center py-4 text-muted"><i class="fa-solid fa-inbox fs-3 mb-2"></i><p class="mb-0">No prediction history available yet. Perform a check-in to get started!</p></div>`;
+                    return;
+                }
+
+                totalPredEl.textContent = history.length;
+
+                // Sort descending by timestamp
+                history.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                const latest = history[0];
+                const role = (currentUser && currentUser.role ? currentUser.role : "student").toLowerCase();
+                const latestMap = window.mapPredictionScore(latest.stressScore, role);
+
+                latestStressEl.textContent = latestMap.label;
+                latestBadgeEl.innerHTML = `<span class="badge ${latestMap.badgeClass}">${Number(latest.stressScore).toFixed(1)}</span>`;
+
+                // Render recent activity list
+                activityListEl.innerHTML = "";
+                history.slice(0, 5).forEach(item => {
+                    const d = new Date(item.timestamp);
+                    const formattedDate = isNaN(d.getTime()) ? "Recently" : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    const map = window.mapPredictionScore(item.stressScore, role);
 
                     const div = document.createElement("div");
-                    div.className = "activity-item";
+                    div.className = "list-group-item d-flex justify-content-between align-items-center py-3 border-bottom";
                     div.innerHTML = `
-                        <div class="activity-info">
-                            <span class="activity-title">${item.role === 'student' ? 'Academic' : 'Workplace'} Stress Check-in</span>
-                            <span class="activity-date">${date}</span>
+                        <div>
+                            <h6 class="fw-bold mb-1" style="color:#18310e;"><i class="fa-solid fa-notes-medical me-2 text-success"></i>Stress Assessment</h6>
+                            <small class="text-muted"><i class="fa-regular fa-clock me-1"></i>${formattedDate}</small>
                         </div>
-                        <span class="activity-badge" style="background-color: ${badgeColor}; color: ${textColor};">${levelText} (${score.toFixed(1)})</span>
+                        <div class="text-end">
+                            <span class="badge ${map.badgeClass} fs-6 px-3 py-2 me-2">${map.label}</span>
+                            <small class="text-muted fw-bold">(${Number(item.stressScore).toFixed(1)})</small>
+                        </div>
                     `;
                     activityListEl.appendChild(div);
                 });
+
+            } catch (err) {
+                console.error("Metrics load error:", err);
+                totalPredEl.textContent = "--";
+                latestStressEl.textContent = "--";
+                activityListEl.innerHTML = `<div class="alert alert-warning mb-0">Failed to load recent activity. Refresh the page to retry.</div>`;
             }
-
-        } catch (err) {
-            console.error("Error loading dashboard metrics:", err);
-            if (totalPredEl) totalPredEl.textContent = "--";
-            if (latestStressEl) latestStressEl.textContent = "--";
-            if (latestAnxietyEl) latestAnxietyEl.textContent = "--";
         }
-    }
 
-    loadUserInfo();
-    checkProfileCompletion();
-    loadDashboardMetrics();
-
-    // Set Welcome Display Name
-    const welcomeDisplayName = document.getElementById("welcome-display-name");
-    if (welcomeDisplayName) {
-        const firstName = localStorage.getItem("first_name") || "User";
-        const lastName = localStorage.getItem("last_name") || "";
-        welcomeDisplayName.textContent = (firstName + " " + lastName).trim() || "User";
-    }
-
-});
-</script>
-
-<!-- PROFILE COMPLETION MODAL -->
-<div class="modal-overlay" id="profile-modal-overlay">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Complete Your Profile</h3>
-      <button class="modal-close-btn" id="modal-close-btn">&times;</button>
-    </div>
-    <div class="modal-body">
-      <form id="modal-profile-form">
-        <label for="modal-fname">First Name</label>
-        <input type="text" id="modal-fname" placeholder="Enter your first name" required>
-
-        <label for="modal-lname">Last Name</label>
-        <input type="text" id="modal-lname" placeholder="Enter your last name" required>
-
-        <label for="modal-contact">Contact</label>
-        <input type="tel" id="modal-contact" placeholder="Enter 10-digit mobile number" required>
-
-        <label for="modal-age">Age</label>
-        <input type="number" id="modal-age" placeholder="Enter your age" required>
-
-        <label for="modal-gender">Gender</label>
-        <select id="modal-gender" required>
-          <option value="">Select Gender</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Other">Other</option>
-        </select>
-
-        <label>Mode</label>
-        <div class="radio-group">
-          <label><input type="radio" name="modal-mode" value="student" required> Student</label>
-          <label><input type="radio" name="modal-mode" value="employee" required> Employee</label>
-        </div>
-
-        <button type="submit" class="modal-submit-btn">Save & Complete Profile</button>
-      </form>
-    </div>
-  </div>
-</div>
+        loadDashboardMetrics();
+    });
+    </script>
 
 </body>
 </html>

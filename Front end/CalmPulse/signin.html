@@ -3,191 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In</title>
+    <title>Sign In - CalmPulse</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="login.css">
+    <style>
+        .auth-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(24, 49, 14, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+            width: 100%;
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body>
+
     <div class="squares">
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-</div>
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+    </div>
+
     <div class="nav">
-            <img src="images/logo.png">
-            <div class="nav-right">
-                <a href="index.html">Home</a>
-                <a href="Aboutus.html">About Us</a>
-                <a href="working.html">How it Works</a>
-                <a href="faq.html">FAQ</a>
-                <a href="signup.html">Sign Up</a>
-                <a class="active" href="signin.html">Sign In</a>
+        <img src="images/logo.png" alt="CalmPulse Logo">
+        <div class="nav-right">
+            <a href="index.html">Home</a>
+            <a href="Aboutus.html">About Us</a>
+            <a href="working.html">How it Works</a>
+            <a href="faq.html">FAQ</a>
+            <a href="signup.html">Sign Up</a>
+            <a class="active" href="signin.html">Sign In</a>
+        </div>
+    </div> 
+
+    <div class="container d-flex align-items-center justify-content-center min-vh-100 py-5">
+        <div class="auth-card p-4 p-md-5">
+            <div class="text-center mb-4">
+                <img src="images/logo.png" alt="CalmPulse Logo" style="height: 60px;" class="mb-2">
+                <h2 class="fw-bold" style="color: #18310e;">Sign In</h2>
+                <p class="text-muted small">Enter your credentials to access your CalmPulse account</p>
             </div>
-        </div> 
-    <div class="a">
-        <div class="b">
-            <h1>Sign In</h1>
-            <div class="form-box">
-                <form id="signinForm">
-            <input type="email" placeholder="Email" id="email" class="inp" required>
-            <p id="emailError" class="error-text"></p>
-            <input type="password" placeholder="Password" id="password" class="inp" required 
-            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
-            title="At least 8 chars, include uppercase, lowercase, number & special char">
-            <p id="passwordError" class="error-text"></p>
-            <input type="text" placeholder="User Name" id="username" class="inp" required>
-            <p id="usernameError" class="error-text"></p>
-            <br>
-            <input type="submit" value="Sign In" name="submit-btn" class="submit-btn">
+
+            <!-- Error Notification Alert -->
+            <div id="signin-alert" class="alert alert-danger alert-dismissible fade show d-none" role="alert">
+                <span id="signin-alert-msg"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <form id="signinForm">
+                <div class="mb-3">
+                    <label for="email" class="form-label fw-semibold">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fa-solid fa-envelope text-success"></i></span>
+                        <input type="email" class="form-control" id="email" placeholder="name@example.com" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="form-label fw-semibold">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fa-solid fa-lock text-success"></i></span>
+                        <input type="password" class="form-control" id="password" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 py-2 fw-bold shadow-sm mb-3" id="signin-btn">
+                    <span class="spinner-border spinner-border-sm me-2 d-none" id="signin-spinner"></span>
+                    Sign In
+                </button>
             </form>
 
-            <p class="register-text">
-                New user? <a href="signup.html">Register</a>
-            </p>        
-        </div>
+            <div class="text-center mt-3">
+                <p class="text-muted mb-0">New user? <a href="signup.html" class="text-success fw-bold text-decoration-none">Create an Account</a></p>
+            </div>
         </div>
     </div>
- <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-section">
-                <h3>CalmPulse</h3>
-                <p>Find Your Calm,Meet Your Pulse.</p>
-            </div>
-            <div class="footer-section">
-                <h4>Quick Links</h4>
-                <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="Aboutus.html">About Us</a></li>
-                    <li><a href="faq.html">FAQ</a></li>
-                    <li><a href="working.html">How it works</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Contact</h4>
-                <p>Email: info@CalmPulse.com</p>
-                <p>Phone: +91 12345 67890</p>
-            </div>
-            <div class="footer-section social">
-                <h4>Follow Us</h4>
-                <a href="#"><img src="images/facebook.png" alt="Facebook" /></a>
-                <a href="#"><img src="images/instagram.png" alt="Instagram" /></a>
-                <a href="#"><img src="images/twitter.png" alt="Twitter" /></a>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2025 CalmPulse. All rights reserved.</p>
-        </div>
-    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="api-config.js"></script>
+    <script src="auth-helper.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-    const BASE_URL = window.getApiBaseUrl();
+    document.addEventListener("DOMContentLoaded", function () {
+        const BASE_URL = window.getApiBaseUrl();
+        const form = document.getElementById("signinForm");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const alertBox = document.getElementById("signin-alert");
+        const alertMsg = document.getElementById("signin-alert-msg");
+        const submitBtn = document.getElementById("signin-btn");
+        const spinner = document.getElementById("signin-spinner");
 
-    const form = document.getElementById('signinForm');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const usernameInput = document.getElementById('username');
-
-    const emailError = document.getElementById('emailError');
-    const passwordError = document.getElementById('passwordError');
-    const usernameError = document.getElementById('usernameError');
-
-    form.addEventListener('submit', async function (e) {
-        e.preventDefault();
-
-        // Clear previous errors
-        emailError.textContent = '';
-        passwordError.textContent = '';
-        usernameError.textContent = '';
-
-        const email = emailInput.value.trim();
-        const password = passwordInput.value.trim();
-        const username = usernameInput.value.trim();
-
-        let isValid = true;
-        if (!validateEmail(email)) {
-            emailError.textContent = 'Please enter a valid email address.';
-            isValid = false;
-        }
-        if (!validatePassword(password)) {
-            passwordError.textContent = 'Password must be at least 8 chars, include uppercase, lowercase, number & special char.';
-            isValid = false;
-        }
-        if (username === '') {
-            usernameError.textContent = 'Username is required.';
-            isValid = false;
+        function showError(msg) {
+            alertMsg.textContent = msg;
+            alertBox.classList.remove("d-none");
         }
 
-        if (!isValid) return;
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            alertBox.classList.add("d-none");
 
-        // **Correct login data to be sent to the backend**
-        // The backend only requires email and password for login
-        const loginData = { email, password };
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
 
-        try {
-            const res = await fetch(`${BASE_URL}/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(loginData)
-            });
+            if (!email || !password) {
+                showError("Please fill in both email and password.");
+                return;
+            }
 
-            const data = await res.json().catch(() => ({}));
-            
-            if (!res.ok) {
-                // If login fails, check for specific backend error messages
-                if (data.error === "Invalid email or password.") {
-                    emailError.textContent = data.error;
-                    passwordError.textContent = '';
-                    return;
+            submitBtn.disabled = true;
+            spinner.classList.remove("d-none");
+
+            try {
+                const res = await fetch(`${BASE_URL}/auth/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json().catch(() => ({}));
+
+                if (!res.ok) {
+                    throw new Error(data.message || data.error || "Invalid credentials or login failed.");
                 }
-                throw new Error(data.error || 'Login failed.');
-            }
 
-            // Save user info for other pages
-            if (data.user_id !== undefined && data.user_id !== null) {
-                localStorage.setItem('user_id', String(data.user_id));
-            }
-            // Store username locally for frontend display
-            localStorage.setItem('username', username);
+                if (data.userId || data.user_id) {
+                    localStorage.setItem("user_id", String(data.userId || data.user_id));
+                }
 
-            if (data.role) localStorage.setItem('role', data.role);
-            if (data.is_new_user !== undefined) localStorage.setItem('is_new_user', String(data.is_new_user));
+                if (data.role) localStorage.setItem("mode", data.role);
+                localStorage.setItem("is_new_user", String(data.isNewUser !== false && data.is_new_user !== false));
 
-            alert('Signed in successfully!');
-            // Redirect to the appropriate page based on backend response
-            if (data.is_new_user) {
-                window.location.href = 'profile.html';
-            } else {
-                window.location.href = 'dashboard.html';
+                // Clear cached user session so loadCurrentUser re-syncs
+                sessionStorage.removeItem("cached_user_profile");
+
+                // Immediately load current user state
+                const user = await window.loadCurrentUser(true);
+
+                if (data.isNewUser || data.is_new_user || (user && user.isNewUser)) {
+                    window.location.href = "dashboard.html";
+                } else {
+                    window.location.href = "dashboard.html";
+                }
+            } catch (err) {
+                console.error("Sign-in error:", err);
+                showError(err.message || "Sign-in failed. Please check your connection and try again.");
+            } finally {
+                submitBtn.disabled = false;
+                spinner.classList.add("d-none");
             }
-        } catch (err) {
-            console.error('Sign-in error:', err);
-            alert('Sign-in failed: ' + err.message);
-        }
+        });
     });
-
-    function validateEmail(email) {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(email);
-    }
-
-    function validatePassword(password) {
-        const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/;
-        return pattern.test(password);
-    }
-});
-</script>
+    </script>
 </body>
 </html>

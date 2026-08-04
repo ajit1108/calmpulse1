@@ -1,6 +1,7 @@
 package com.calmpulse.backend.entity;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import lombok.*;
@@ -17,6 +18,7 @@ public class StressHistory {
     @Id
     private String id;
 
+    @Indexed
     @Field("user_id")
     private String userId;
 
