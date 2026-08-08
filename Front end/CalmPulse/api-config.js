@@ -1,10 +1,10 @@
 (function() {
     const hostname = window.location.hostname;
     
-    // Base Spring Boot backend URL
-    let url = "http://localhost:8080";
-    if (hostname !== "localhost" && hostname !== "127.0.0.1" && hostname !== "") {
-        url = "https://calmpulsebackend.onrender.com";
+    // Base Spring Boot backend URL: default to production, only use local for localhost dev servers
+    let url = "https://calmpulsebackend.onrender.com";
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
+        url = "http://localhost:8080";
     }
 
     // Base Python ML URL
@@ -56,5 +56,43 @@
                 return { label: 'High', code: 2, badgeClass: 'bg-danger', color: '#dc3545' };
             }
         }
+    };
+
+    /**
+     * Centralized Date/Time Formatter
+     * @param {string|Date|number} dateInput 
+     * @returns {string} formatted date string e.g. "04 Aug 2026, 07:45 PM"
+     */
+    window.formatDateTime = function formatDateTime(dateInput) {
+        const d = new Date(dateInput);
+        if (isNaN(d.getTime())) return "N/A";
+        
+        const day = String(d.getDate()).padStart(2, '0');
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const month = months[d.getMonth()];
+        const year = d.getFullYear();
+        
+        let hours = d.getHours();
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        const formattedHours = String(hours).padStart(2, '0');
+        
+        return `${day} ${month} ${year}, ${formattedHours}:${minutes} ${ampm}`;
+    };
+
+    /**
+     * Centralized Graph Date Formatter
+     * @param {string|Date|number} dateInput 
+     * @returns {string} formatted date string e.g. "28 Jul"
+     */
+    window.formatGraphDate = function formatGraphDate(dateInput) {
+        const d = new Date(dateInput);
+        if (isNaN(d.getTime())) return "Check-in";
+        const day = String(d.getDate()).padStart(2, '0');
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const month = months[d.getMonth()];
+        return `${day} ${month}`;
     };
 })();

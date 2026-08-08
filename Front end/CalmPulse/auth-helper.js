@@ -5,12 +5,25 @@
  */
 (function () {
     const PUBLIC_PAGES = ["index.html", "signin.html", "signup.html", "aboutus.html", "faq.html", "working.html"];
+    let activeProfileFetchPromise = null;
 
     function isPublicPage() {
         const path = window.location.pathname.toLowerCase();
-        const page = path.split("/").pop().toLowerCase();
-        if (!page || page === "" || page === "index.html") return true;
-        return PUBLIC_PAGES.some(p => p.toLowerCase() === page);
+        let page = path.split("/").pop().toLowerCase();
+        if (!page || page === "" || page === "index.html" || page === "index") return true;
+        
+        // Strip .html extension to support clean URLs (e.g. /signup)
+        if (page.endsWith(".html")) {
+            page = page.slice(0, -5);
+        }
+        
+        return PUBLIC_PAGES.some(p => {
+            let cp = p.toLowerCase();
+            if (cp.endsWith(".html")) {
+                cp = cp.slice(0, -5);
+            }
+            return cp === page;
+        });
     }
 
     // Ping ML service warm-up asynchronously
@@ -48,42 +61,60 @@
             }
         }
 
-        try {
-            const res = await fetch(`${BASE_URL}/profile/${userId}`);
-            if (!res.ok) {
-                if (res.status === 401 || res.status === 403) {
-                    if (!isPublicPage()) window.logoutUser();
-                    return null;
+        if (!forceRefresh && activeProfileFetchPromise) {
+            return activeProfileFetchPromise;
+        }
+
+        const fetchPromise = (async () => {
+            try {
+                const res = await fetch(`${BASE_URL}/profile/${userId}`);
+                if (!res.ok) {
+                    if (res.status === 401 || res.status === 403) {
+                        if (!isPublicPage()) window.logoutUser();
+                        return null;
+                    }
+                    throw new Error(`Profile load failed: ${res.status}`);
                 }
-                throw new Error(`Profile load failed: ${res.status}`);
+
+                const user = await res.json();
+
+                // Cache profile in session storage
+                sessionStorage.setItem("cached_user_profile", JSON.stringify(user));
+
+                // Sync localStorage helpers
+                localStorage.setItem("first_name", user.firstName || "");
+                localStorage.setItem("last_name", user.lastName || "");
+                localStorage.setItem("mode", user.role || "student");
+                localStorage.setItem("is_new_user", String(user.isNewUser !== false));
+                if (user.streak !== undefined) localStorage.setItem("streak", user.streak);
+                if (user.badge !== undefined) localStorage.setItem("badge", user.badge);
+
+                renderNavbar(user);
+                return user;
+            } catch (err) {
+                console.error("Error in loadCurrentUser:", err);
+                const fallbackUser = {
+                    id: userId,
+                    firstName: localStorage.getItem("first_name") || "User",
+                    lastName: localStorage.getItem("last_name") || "",
+                    role: localStorage.getItem("mode") || "student",
+                    isNewUser: localStorage.getItem("is_new_user") === "true"
+                };
+                renderNavbar(fallbackUser);
+                return fallbackUser;
             }
+        })();
 
-            const user = await res.json();
+        if (!forceRefresh) {
+            activeProfileFetchPromise = fetchPromise;
+        }
 
-            // Cache profile in session storage
-            sessionStorage.setItem("cached_user_profile", JSON.stringify(user));
-
-            // Sync localStorage helpers
-            localStorage.setItem("first_name", user.firstName || "");
-            localStorage.setItem("last_name", user.lastName || "");
-            localStorage.setItem("mode", user.role || "student");
-            localStorage.setItem("is_new_user", String(user.isNewUser !== false));
-            if (user.streak !== undefined) localStorage.setItem("streak", user.streak);
-            if (user.badge !== undefined) localStorage.setItem("badge", user.badge);
-
-            renderNavbar(user);
-            return user;
-        } catch (err) {
-            console.error("Error in loadCurrentUser:", err);
-            const fallbackUser = {
-                id: userId,
-                firstName: localStorage.getItem("first_name") || "User",
-                lastName: localStorage.getItem("last_name") || "",
-                role: localStorage.getItem("mode") || "student",
-                isNewUser: localStorage.getItem("is_new_user") === "true"
-            };
-            renderNavbar(fallbackUser);
-            return fallbackUser;
+        try {
+            return await fetchPromise;
+        } finally {
+            if (!forceRefresh) {
+                activeProfileFetchPromise = null;
+            }
         }
     };
 

@@ -40,7 +40,7 @@ public class PredictService {
         StressHistory history = StressHistory.builder()
                 .userId(userId)
                 .stressScore(stressScore)
-                .timestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                .timestamp(java.time.Instant.now().toString())
                 .jobRole(request.getJobRole())
                 .workingHours(request.getWorkingHours())
                 .virtualMeetings(request.getVirtualMeetings())

@@ -215,11 +215,15 @@
 
     </section>
     <script>
-    const userMode = localStorage.getItem('mode');
-    if (!userMode) {
-        alert("Please complete your profile first.");
-        window.location.href = 'profile.html';
-    } 
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Wait for current user to be loaded (and stored in localStorage)
+        await window.loadCurrentUser();
+        const userMode = localStorage.getItem('mode');
+        if (!userMode) {
+            alert("Please complete your profile first.");
+            window.location.href = 'profile.html';
+        }
+    }); 
     const signoutBtn = document.getElementById('signout-btn');
     if (signoutBtn) {
         signoutBtn.addEventListener('click', () => {

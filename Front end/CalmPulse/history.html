@@ -71,10 +71,28 @@
                 </div>
             </div>
 
+            <!-- Loading State Container -->
+            <div id="loading-history-container" class="card border-0 shadow-sm p-5 text-center">
+                <div class="spinner-border text-success mb-3" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h4 class="fw-semibold text-muted">Loading prediction history...</h4>
+            </div>
+
+            <!-- Error State Container -->
+            <div id="error-history-container" class="card border-0 shadow-sm p-5 text-center d-none">
+                <i class="fa-solid fa-circle-exclamation text-danger display-1 mb-3"></i>
+                <h3 class="fw-bold text-danger">Unable to load prediction history. Please try again.</h3>
+                <p class="text-muted max-width-600 mx-auto">Please check your network connection or server status and click the retry button below.</p>
+                <div class="mt-3">
+                    <button id="retry-history-btn" class="btn btn-danger px-4 py-2 fw-bold"><i class="fa-solid fa-arrows-rotate me-2"></i>Retry</button>
+                </div>
+            </div>
+
             <!-- Empty State Container -->
             <div id="empty-history-container" class="card border-0 shadow-sm p-5 text-center d-none">
                 <i class="fa-solid fa-folder-open text-success display-1 mb-3"></i>
-                <h3 class="fw-bold text-success">No Assessment History Found</h3>
+                <h3 class="fw-bold text-success">No prediction history available yet.</h3>
                 <p class="text-muted max-width-600 mx-auto">You have not completed any stress check-ins yet. Take your first stress test to generate personalized graphs and analytics.</p>
                 <div class="mt-3">
                     <a href="dashboard.html" class="btn btn-success px-4 py-2 fw-bold"><i class="fa-solid fa-stethoscope me-2"></i>Perform Check-In Now</a>
@@ -98,7 +116,11 @@
                         </div>
                     </div>
 
-                    <div class="chart-container-box">
+                    <div class="chart-container-box" style="position: relative;">
+                        <div id="line-empty-overlay" class="text-center py-5 text-muted d-none" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;">
+                            <i class="fa-solid fa-wave-square text-secondary fs-1 mb-2"></i>
+                            <p class="mb-0 fw-semibold">No history data available</p>
+                        </div>
                         <canvas id="lineChart"></canvas>
                     </div>
                 </div>
@@ -153,7 +175,7 @@
     <script src="api-config.js"></script>
     <script src="auth-helper.js"></script>
     <script>
-    document.addEventListener("DOMContentLoaded", async function () {
+    document.addEventListener("DOMContentLoaded", function () {
         const userId = localStorage.getItem("user_id");
         if (!userId) {
             window.location.href = "signin.html";
@@ -162,6 +184,9 @@
 
         const BASE_URL = window.getApiBaseUrl();
         const emptyContainer = document.getElementById("empty-history-container");
+        const loadingContainer = document.getElementById("loading-history-container");
+        const errorContainer = document.getElementById("error-history-container");
+        const retryBtn = document.getElementById("retry-history-btn");
         const historyContent = document.getElementById("history-content");
         const tableBody = document.getElementById("history-table-body");
         const pieEmptyOverlay = document.getElementById("pie-empty-overlay");
@@ -169,58 +194,61 @@
         const pieModeIndicator = document.getElementById("pie-mode-indicator");
 
         let fullHistory = [];
+        let activeHistory = [];
         let lineChartInstance = null;
         let pieChartInstance = null;
         let userRole = "student";
 
-        // Fetch User Profile to know role
-        const currentUser = await window.loadCurrentUser();
-        if (currentUser && currentUser.role) {
-            userRole = currentUser.role.toLowerCase();
-        }
-
-        pieModeIndicator.textContent = `${userRole === 'student' ? 'Student' : 'Employee'} Factors`;
-
         // Fetch History
-        try {
-            const res = await fetch(`${BASE_URL}/history/${userId}`);
-            if (!res.ok) throw new Error("Failed to load stress history from server.");
-
-            const data = await res.json();
-            if (!Array.isArray(data) || data.length === 0) {
-                emptyContainer.classList.remove("d-none");
-                historyContent.classList.add("d-none");
-                return;
-            }
-
-            // Sort ascending for chronological line chart
-            data.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-            fullHistory = data;
-
-            initLineChart();
-            initPieChart();
-            updateDashboardCharts(7);
-            renderTable(fullHistory);
-
-            // Bind filter buttons
-            document.querySelectorAll(".filter-btn").forEach(btn => {
-                btn.addEventListener("click", function () {
-                    document.querySelectorAll(".filter-btn").forEach(b => {
-                        b.classList.remove("btn-success", "active");
-                        b.classList.add("btn-outline-success");
-                    });
-                    this.classList.remove("btn-outline-success");
-                    this.classList.add("btn-success", "active");
-
-                    const range = this.getAttribute("data-range");
-                    updateDashboardCharts(range === "all" ? "all" : parseInt(range));
-                });
-            });
-
-        } catch (err) {
-            console.error("History fetch error:", err);
-            emptyContainer.classList.remove("d-none");
+        async function fetchHistory() {
+            loadingContainer.classList.remove("d-none");
+            errorContainer.classList.add("d-none");
+            emptyContainer.classList.add("d-none");
             historyContent.classList.add("d-none");
+
+            try {
+                // Fetch User Profile to know role
+                const currentUser = await window.loadCurrentUser();
+                if (currentUser && currentUser.role) {
+                    userRole = currentUser.role.toLowerCase();
+                }
+
+                pieModeIndicator.textContent = `${userRole === 'student' ? 'Student' : 'Employee'} Factors`;
+
+                const res = await fetch(`${BASE_URL}/history/${userId}`);
+                if (!res.ok) throw new Error("Failed to load stress history from server.");
+
+                const data = await res.json();
+                if (!Array.isArray(data) || data.length === 0) {
+                    loadingContainer.classList.add("d-none");
+                    emptyContainer.classList.remove("d-none");
+                    return;
+                }
+
+                // Sort ascending for chronological line chart
+                data.sort((a, b) => {
+                    const da = new Date(a.timestamp);
+                    const db = new Date(b.timestamp);
+                    return da.getTime() - db.getTime();
+                });
+                fullHistory = data;
+
+                if (!lineChartInstance) {
+                    initLineChart();
+                }
+                if (!pieChartInstance) {
+                    initPieChart();
+                }
+
+                updateDashboardCharts(7);
+
+                loadingContainer.classList.add("d-none");
+                historyContent.classList.remove("d-none");
+            } catch (err) {
+                console.error("History fetch error:", err);
+                loadingContainer.classList.add("d-none");
+                errorContainer.classList.remove("d-none");
+            }
         }
 
         // Initialize Line Chart
@@ -257,6 +285,13 @@
                             padding: 12,
                             cornerRadius: 8,
                             callbacks: {
+                                title: function(context) {
+                                    const index = context[0].dataIndex;
+                                    if (activeHistory[index]) {
+                                        return window.formatDateTime(activeHistory[index].timestamp);
+                                    }
+                                    return "";
+                                },
                                 label: function(context) {
                                     const score = context.raw;
                                     const map = window.mapPredictionScore(score, userRole);
@@ -345,28 +380,37 @@
                 });
             }
 
-            // Fall back to full history if range produces no records
-            if (filtered.length === 0) filtered = fullHistory;
+            activeHistory = filtered;
 
-            const labels = filtered.map(item => {
-                const d = new Date(item.timestamp);
-                return isNaN(d.getTime()) ? "Check-in" : d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+            if (filtered.length === 0) {
+                document.getElementById("line-empty-overlay").classList.remove("d-none");
+                document.getElementById("lineChart").style.opacity = "0";
+                
+                updatePieChartData({});
+                renderTable([]);
+                return;
+            }
+
+            document.getElementById("line-empty-overlay").classList.add("d-none");
+            document.getElementById("lineChart").style.opacity = "1";
+
+            const labels = filtered.map(item => window.formatGraphDate(item.timestamp));
+            const scores = filtered.map(item => {
+                return item.stress_score !== undefined ? Number(item.stress_score) : (item.prediction !== undefined ? Number(item.prediction) : 0);
             });
 
-            const scores = filtered.map(item => Number(item.stressScore) || 0);
-
             // Update Line Chart
+            lineChartInstance.options.scales.y.max = (userRole === 'employee' ? 4 : 3);
             lineChartInstance.data.labels = labels;
             lineChartInstance.data.datasets[0].data = scores;
             lineChartInstance.update();
 
             // Update Pie Chart with latest record from filtered set
-            if (filtered.length > 0) {
-                const latestRecord = filtered[filtered.length - 1];
-                updatePieChartData(latestRecord.factors || {});
-            } else {
-                updatePieChartData({});
-            }
+            const latestRecord = filtered[filtered.length - 1];
+            updatePieChartData(latestRecord.factors || {});
+
+            // Update table logs
+            renderTable(filtered);
         }
 
         function updatePieChartData(factors) {
@@ -379,16 +423,16 @@
                     "Teacher Relationship", "Career Concerns", "Social Support", "Peer Pressure", "Extracurricular Load"
                 ];
                 values = [
-                    factors.anxietyLevel || 0,
+                    factors.anxiety_level || 0,
                     factors.depression || 0,
-                    factors.sleepQuality || 0,
-                    factors.academicPerformance || 0,
-                    factors.studyLoad || 0,
-                    factors.teacherStudentRelationship || 0,
-                    factors.futureCareerConcerns || 0,
-                    factors.socialSupport || 0,
-                    factors.peerPressure || 0,
-                    factors.extracurricularLoad || 0
+                    factors.sleep_quality || 0,
+                    factors.academic_performance || 0,
+                    factors.study_load || 0,
+                    factors.teacher_student_relationship || 0,
+                    factors.future_career_concerns || 0,
+                    factors.social_support || 0,
+                    factors.peer_pressure || 0,
+                    factors.extracurricular_load || 0
                 ];
             } else {
                 labels = [
@@ -396,14 +440,14 @@
                     "Mental Health Access", "Sleep Quality", "Physical Activity", "Remote Satisfaction"
                 ];
                 values = [
-                    factors.workingHours || 0,
-                    factors.virtualMeetings || 0,
-                    factors.workLifeBalance || 0,
-                    factors.companySupport || 0,
-                    factors.accessToMentalHealth === 'yes' ? 1 : 0,
-                    factors.sleepQuality === 'good' ? 3 : factors.sleepQuality === 'average' ? 2 : 1,
-                    factors.physicalActivity === 'daily' ? 3 : factors.physicalActivity === 'weekly' ? 2 : 1,
-                    factors.satisfactionWithRemoteWork === 'satisfied' ? 3 : 1
+                    factors.working_hours || 0,
+                    factors.virtual_meetings || 0,
+                    factors.work_life_balance || 0,
+                    factors.company_support || 0,
+                    factors.access_to_mental_health === 'yes' ? 1 : 0,
+                    factors.sleep_quality === 'good' ? 3 : factors.sleep_quality === 'average' ? 2 : 1,
+                    factors.physical_activity === 'daily' ? 3 : factors.physical_activity === 'weekly' ? 2 : 1,
+                    factors.satisfaction_with_remote_work === 'satisfied' ? 3 : 1
                 ];
             }
 
@@ -434,36 +478,58 @@
         function renderTable(history) {
             tableBody.innerHTML = "";
 
-            // Show newest logs first in table
+            if (history.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-3 text-muted">No prediction history available for the selected period.</td></tr>`;
+                return;
+            }
+
+            // Show newest logs first in table (reversed chronological order)
             const reversed = [...history].reverse();
 
             reversed.forEach((item, index) => {
-                const d = new Date(item.timestamp);
-                const dateStr = isNaN(d.getTime()) ? "N/A" : d.toLocaleDateString(undefined, {
-                    month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit"
-                });
-
-                const map = window.mapPredictionScore(item.stressScore, userRole);
+                const dateStr = window.formatDateTime(item.timestamp);
+                const score = item.stress_score !== undefined ? item.stress_score : (item.prediction !== undefined ? item.prediction : 0);
+                const map = window.mapPredictionScore(score, userRole);
                 const factors = item.factors || {};
 
                 let keyFactorStr = "Standard Check-in";
                 if (userRole === 'student') {
-                    keyFactorStr = `Anxiety (${factors.anxietyLevel || 0}), Study Load (${factors.studyLoad || 0})`;
+                    keyFactorStr = `Anxiety (${factors.anxiety_level || 0}), Study Load (${factors.study_load || 0})`;
                 } else {
-                    keyFactorStr = `Work Hours (${factors.workingHours || 0}h), Work-Life (${factors.workLifeBalance || 0}/5)`;
+                    keyFactorStr = `Work Hours (${factors.working_hours || 0}h), Work-Life (${factors.work_life_balance || 0}/5)`;
                 }
 
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
                     <th scope="row">${index + 1}</th>
                     <td><i class="fa-regular fa-calendar me-2 text-muted"></i>${dateStr}</td>
-                    <td><strong>${Number(item.stressScore).toFixed(2)}</strong></td>
+                    <td><strong>${Number(score).toFixed(2)}</strong></td>
                     <td><span class="badge ${map.badgeClass} fs-6 px-3 py-1">${map.label}</span></td>
                     <td class="small text-muted">${keyFactorStr}</td>
                 `;
                 tableBody.appendChild(tr);
             });
         }
+
+        retryBtn.addEventListener("click", fetchHistory);
+
+        // Bind filter buttons
+        document.querySelectorAll(".filter-btn").forEach(btn => {
+            btn.addEventListener("click", function () {
+                document.querySelectorAll(".filter-btn").forEach(b => {
+                    b.classList.remove("btn-success", "active");
+                    b.classList.add("btn-outline-success");
+                });
+                this.classList.remove("btn-outline-success");
+                this.classList.add("btn-success", "active");
+
+                const range = this.getAttribute("data-range");
+                updateDashboardCharts(range === "all" ? "all" : parseInt(range));
+            });
+        });
+
+        // Trigger initial load
+        fetchHistory();
     });
     </script>
 </body>

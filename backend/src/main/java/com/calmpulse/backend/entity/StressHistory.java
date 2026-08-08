@@ -28,6 +28,30 @@ public class StressHistory {
     @Field("timestamp")
     private String timestamp; // Using String timestamp for MongoDB compatibility (matches isoformat string in app.py)
 
+    @Field("prediction")
+    private Double prediction;
+
+    @Field("prediction_type")
+    private String predictionType;
+
+    @Field("createdAt")
+    private String createdAt;
+
+    @Field("date")
+    private String date;
+
+    @Field("score")
+    private Double score;
+
+    @Field("mood")
+    private String mood;
+
+    @Field("stress")
+    private String stress;
+
+    @Field("anxiety")
+    private String anxiety;
+
     @Field("job_role")
     private String jobRole;
 

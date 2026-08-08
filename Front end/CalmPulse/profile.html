@@ -143,7 +143,7 @@
                         <i class="fa-solid fa-user-gear fs-3 text-success me-3"></i>
                         <div>
                             <h3 class="fw-bold mb-0" id="edit-title" style="color: #18310e;">Edit Profile</h3>
-                            <p class="text-muted small mb-0">Update your account information saved in MongoDB</p>
+                            <p class="text-muted small mb-0">Update your account information</p>
                         </div>
                     </div>
 
@@ -386,7 +386,7 @@
                 currentUser = await window.loadCurrentUser(true);
                 renderViewMode(currentUser);
 
-                showAlert("Profile saved successfully in MongoDB!", "success");
+                showAlert("Profile saved successfully!", "success");
                 switchToViewMode();
             } catch (err) {
                 console.error("Save profile error:", err);

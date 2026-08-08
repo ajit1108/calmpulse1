@@ -42,9 +42,42 @@ public class HistoryService {
                     .extracurricularLoad(record.getExtracurricularLoad())
                     .build();
 
+            String ts = record.getTimestamp();
+            if (ts == null || ts.isEmpty()) {
+                ts = record.getCreatedAt();
+            }
+            if (ts == null || ts.isEmpty()) {
+                ts = record.getDate();
+            }
+            if (ts == null) {
+                ts = "";
+            }
+            if (!ts.isEmpty() && !ts.endsWith("Z") && !ts.contains("+") && ts.indexOf('T') > 0) {
+                ts = ts + "Z";
+            }
+
+            Double sScore = record.getStressScore();
+            if (sScore == null) {
+                sScore = record.getPrediction();
+            }
+            if (sScore == null) {
+                sScore = record.getScore();
+            }
+            if (sScore == null) {
+                sScore = 0.0;
+            }
+
             return HistoryResponse.builder()
-                    .stressScore(record.getStressScore())
-                    .timestamp(record.getTimestamp() != null ? record.getTimestamp() : "")
+                    .stressScore(sScore)
+                    .prediction(record.getPrediction())
+                    .predictionType(record.getPredictionType())
+                    .createdAt(record.getCreatedAt())
+                    .date(record.getDate())
+                    .score(record.getScore())
+                    .mood(record.getMood())
+                    .stress(record.getStress())
+                    .anxiety(record.getAnxiety())
+                    .timestamp(ts)
                     .factors(factors)
                     .build();
         }).collect(Collectors.toList());

@@ -12,6 +12,25 @@ public class HistoryResponse {
     @JsonProperty("stress_score")
     private Double stressScore;
 
+    @JsonProperty("prediction")
+    private Double prediction;
+
+    @JsonProperty("prediction_type")
+    private String predictionType;
+
+    @JsonProperty("createdAt")
+    private String createdAt;
+
+    @JsonProperty("date")
+    private String date;
+
+    @JsonProperty("score")
+    private Double score;
+
+    private String mood;
+    private String stress;
+    private String anxiety;
+
     private String timestamp;
 
     private Factors factors;
